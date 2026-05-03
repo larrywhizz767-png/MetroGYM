@@ -12,6 +12,7 @@ HELP_OVERLAY_ROWS = [
     "Ctrl++      jump forward 5% of current ticks",
     "Ctrl+D      speed up animation by +0.5x",
     "Ctrl+A      slow down animation by -0.5x",
+    "Ctrl+M      cycle UI mode",
     "Ctrl+Q      quit visualisation",
     "Ctrl+H      show / hide this help",
 ]

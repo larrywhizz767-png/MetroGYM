@@ -28,3 +28,5 @@ class KeyboardController:
             self.simulator.animation_ratio = max(0.5, self.simulator.animation_ratio - 0.5)
         elif event.key == pygame.K_h:
             self.simulator.toggle_help()
+        elif event.key == pygame.K_m:
+            self.simulator.toggle_ui_mode()

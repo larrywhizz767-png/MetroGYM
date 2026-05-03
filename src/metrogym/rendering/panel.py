@@ -7,6 +7,7 @@ from beartype import beartype
 
 from metrogym.core.colors import ColorRGBA
 from metrogym.core.coordinates import Position, PositionLike, to_position, to_positions
+from metrogym.core.ui_modes import UIMode
 from metrogym.primitives.signal.runtime import RuntimeTrafficLight
 from metrogym.primitives.station.runtime import RuntimeStation
 from metrogym.primitives.train.runtime import RuntimeTrain
@@ -68,5 +69,5 @@ class SimulationPanel:
             obj.reset()
 
     @beartype
-    def draw(self, surface: object, renderer: object) -> None:
-        renderer.draw_panel(surface, self)
+    def draw(self, surface: object, renderer: object, *, ui_mode: UIMode = "minimal") -> None:
+        renderer.draw_panel(surface, self, ui_mode=ui_mode)

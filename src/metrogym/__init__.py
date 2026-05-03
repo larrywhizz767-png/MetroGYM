@@ -2,6 +2,8 @@
 
 from metrogym.controls import ControlSystem, SignalRule
 from metrogym.core import Color, ColorRGBA, Position
+from metrogym.core.signal_assets import SignalAsset, SignalAssetState, load_signal_asset_surface, signal_asset
+from metrogym.core.train_assets import TrainAsset, TrainAssetName, load_train_asset_surface, train_asset
 from metrogym.events import CollisionEvent
 from metrogym.primitives import ControlRule, Line, Network, Signal, Station, Train
 from metrogym.primitives.line import build_path
@@ -22,9 +24,17 @@ __all__ = [
     "Position",
     "Signal",
     "SignalRule",
+    "SignalAsset",
+    "SignalAssetState",
     "Train",
+    "TrainAsset",
+    "TrainAssetName",
     "TrafficLight",
     "Station",
     "Line",
     "build_path",
+    "load_signal_asset_surface",
+    "load_train_asset_surface",
+    "signal_asset",
+    "train_asset",
 ]

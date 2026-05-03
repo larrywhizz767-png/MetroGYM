@@ -7,13 +7,22 @@ from beartype import beartype
 from metrogym.core.colors import ColorRGBA
 from metrogym.core.constants import TRAIN_COLLISION_RADIUS
 from metrogym.core.coordinates import Position, PositionLike, to_positions
+from metrogym.core.train_assets import DEFAULT_TRAIN_ASSET, TrainAssetName, validate_train_asset_name
 from metrogym.events import CollisionEvent
 
 
 @beartype
 class RuntimeTrain:
     @beartype
-    def __init__(self, id: str, line_name: str, path: Sequence[PositionLike], color: ColorRGBA, control: object | None = None):
+    def __init__(
+        self,
+        id: str,
+        line_name: str,
+        path: Sequence[PositionLike],
+        color: ColorRGBA,
+        control: object | None = None,
+        asset: TrainAssetName | str = DEFAULT_TRAIN_ASSET,
+    ):
         if not path:
             raise ValueError("Train path must not be empty.")
         self.id = id
@@ -21,6 +30,7 @@ class RuntimeTrain:
         self.path = to_positions(path)
         self.color = color
         self.control = control
+        self.asset = validate_train_asset_name(asset)
         self._position = self.path[0]
         self._path_index = 0
         self._peers: list[RuntimeTrain] = []

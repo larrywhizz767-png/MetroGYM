@@ -5,13 +5,16 @@ from collections.abc import Sequence
 import pygame
 from beartype import beartype
 
-from metrogym.core.colors import Color, ColorRGBA
+from metrogym.core.colors import Color
 from metrogym.core.coordinates import Position
+from metrogym.core.signal_assets import load_signal_asset_surface, signal_asset
+from metrogym.core.train_assets import load_train_asset_surface, train_asset
+from metrogym.core.ui_modes import UIMode
 from metrogym.primitives.signal.runtime import RuntimeTrafficLight
 from metrogym.primitives.station.runtime import RuntimeStation
 from metrogym.primitives.train.runtime import RuntimeTrain
 from metrogym.rendering._utils import gfx
-from metrogym.rendering.primitives.metrogym_renderer.extras.constants import GRID_STEP, HELP_OVERLAY_ROWS, TRAIN_HEIGHT, TRAIN_WIDTH
+from metrogym.rendering.primitives.metrogym_renderer.extras.constants import GRID_STEP, HELP_OVERLAY_ROWS
 
 
 @beartype
@@ -30,19 +33,23 @@ class RuntimeMetroGYMRenderer:
         }
 
     @beartype
-    def draw_panel(self, surface: object, panel: object) -> None:
+    def draw_panel(self, surface: object, panel: object, *, ui_mode: UIMode = "minimal") -> None:
         width, height = panel.window_size.pygame()
         self.draw_background(surface, width, height)
         self.draw_grid(surface, width, height)
+        track_alpha = 64 if ui_mode == "dynamic" else 255
+        object_alpha = 64 if ui_mode == "static" else 255
+        show_train_labels = ui_mode in {"full", "dynamic", "static"}
+        show_signal_details = ui_mode in {"full", "dynamic", "static"}
         for track_line in panel.track_lines:
-            self.draw_track(surface, track_line)
+            self.draw_track(surface, track_line, alpha=track_alpha)
         for station in panel.stations:
             self.draw_station(surface, station)
         for obj in panel.objects:
             if isinstance(obj, RuntimeTrain):
-                self.draw_train(surface, obj)
+                self.draw_train(surface, obj, alpha=object_alpha, show_label=show_train_labels)
             elif isinstance(obj, RuntimeTrafficLight):
-                self.draw_traffic_light(surface, obj)
+                self.draw_traffic_light(surface, obj, alpha=object_alpha, show_details=show_signal_details)
         self.draw_hud(surface, panel.track_lines, panel.tick_count, width, height)
 
     @beartype
@@ -58,13 +65,17 @@ class RuntimeMetroGYMRenderer:
             gfx.line(surface, Position(0, y), Position(width, y), Color.GRID_LINE, gfx.scale_value(1, self.scale))
 
     @beartype
-    def draw_track(self, surface: object, track_line: object) -> None:
+    def draw_track(self, surface: object, track_line: object, *, alpha: int = 255) -> None:
         if len(track_line.path) < 2:
             return
         points = [Position(*gfx.scale_position(point, self.scale)) for point in track_line.path]
-        gfx.polyline(surface, points, track_line.color.darker().darker(), gfx.scale_value(6, self.scale))
-        gfx.polyline(surface, points, track_line.color.darker(), gfx.scale_value(3, self.scale))
-        gfx.polyline(surface, points, (track_line.color.r, track_line.color.g, track_line.color.b, 100), gfx.scale_value(1.5, self.scale))
+        base_alpha = max(0, min(255, alpha))
+        highlight_alpha = max(0, min(100, round(100 * base_alpha / 255)))
+        dark = track_line.color.darker().darker()
+        mid = track_line.color.darker()
+        gfx.polyline(surface, points, (dark.r, dark.g, dark.b, base_alpha), gfx.scale_value(6, self.scale))
+        gfx.polyline(surface, points, (mid.r, mid.g, mid.b, base_alpha), gfx.scale_value(3, self.scale))
+        gfx.polyline(surface, points, (track_line.color.r, track_line.color.g, track_line.color.b, highlight_alpha), gfx.scale_value(1.5, self.scale))
 
     @beartype
     def draw_station(self, surface: object, station: RuntimeStation) -> None:
@@ -76,51 +87,34 @@ class RuntimeMetroGYMRenderer:
         surface.blit(label, label.get_rect(center=(center.x, center.y + radius + gfx.scale_value(10, self.scale))))
 
     @beartype
-    def draw_train(self, surface: object, train: RuntimeTrain) -> None:
+    def draw_train(self, surface: object, train: RuntimeTrain, *, alpha: int = 255, show_label: bool = True) -> None:
         x, y = gfx.scale_position(train.position, self.scale)
-        rect = pygame.Rect(
-            x - gfx.scale_value(TRAIN_WIDTH, self.scale) // 2,
-            y - gfx.scale_value(TRAIN_HEIGHT, self.scale) // 2,
-            gfx.scale_value(TRAIN_WIDTH, self.scale),
-            gfx.scale_value(TRAIN_HEIGHT, self.scale),
-        )
-        fill = train.color.darker() if train.stopped else train.color
-        outline = Color.YELLOW if train.stopped else Color(255, 255, 255)
-        gfx.filled_rounded_rect(surface, rect, gfx.scale_value(6, self.scale), fill)
-        gfx.outline_rect(surface, rect, outline, gfx.scale_value(2 if train.stopped else 1, self.scale))
-        wheel_w = gfx.scale_value(6, self.scale)
-        wheel_h = gfx.scale_value(4, self.scale)
-        gfx.filled_rect(surface, pygame.Rect(x - gfx.scale_value(10, self.scale), y + gfx.scale_value(6, self.scale), wheel_w, wheel_h), Color(45, 45, 45))
-        gfx.filled_rect(surface, pygame.Rect(x + gfx.scale_value(4, self.scale), y + gfx.scale_value(6, self.scale), wheel_w, wheel_h), Color(45, 45, 45))
-        label = self.fonts["train"].render(train.line_name, True, (255, 255, 255))
-        surface.blit(label, label.get_rect(center=(x, y + gfx.scale_value(1, self.scale))))
+        asset = train_asset(train.asset)
+        sprite = _with_alpha(load_train_asset_surface(train.asset, scale=self.scale), alpha)
+        rect = sprite.get_rect(center=(x, y))
+        if train.stopped:
+            glow_padding = gfx.scale_value(3, self.scale)
+            glow = rect.inflate(glow_padding * 2, glow_padding * 2)
+            gfx.outline_rect(surface, glow, Color.YELLOW, gfx.scale_value(2, self.scale))
+        surface.blit(sprite, rect)
+        if show_label:
+            label = self.fonts["train"].render(train.line_name, True, (255, 255, 255))
+            surface.blit(label, label.get_rect(center=(x, y + gfx.scale_value(asset.height // 2 + 7, self.scale))))
 
     @beartype
-    def draw_traffic_light(self, surface: object, light: RuntimeTrafficLight) -> None:
+    def draw_traffic_light(self, surface: object, light: RuntimeTrafficLight, *, alpha: int = 255, show_details: bool = True) -> None:
         x, y = gfx.scale_position(light.position, self.scale)
-        housing = pygame.Rect(x - gfx.scale_value(12, self.scale), y - gfx.scale_value(25, self.scale), gfx.scale_value(24, self.scale), gfx.scale_value(50, self.scale))
-        gfx.filled_rounded_rect(surface, housing, gfx.scale_value(6, self.scale), Color(40, 40, 40))
-        gfx.outline_rect(surface, housing, Color(75, 75, 75), gfx.scale_value(2, self.scale))
-        gfx.filled_rect(surface, pygame.Rect(x - gfx.scale_value(2, self.scale), y + gfx.scale_value(25, self.scale), gfx.scale_value(4, self.scale), gfx.scale_value(14, self.scale)), Color(80, 80, 80))
-        self.draw_lamp(surface, Position(x, y - gfx.scale_value(10, self.scale)), Color(255, 0, 0), not light.green)
-        self.draw_lamp(surface, Position(x, y + gfx.scale_value(10, self.scale)), Color(0, 255, 0), light.green)
-        if light.label is not None:
+        state = "go" if light.green else "stop"
+        asset = signal_asset(state)
+        sprite = _with_alpha(load_signal_asset_surface(state, scale=self.scale), alpha)
+        rect = sprite.get_rect(center=(x, y))
+        surface.blit(sprite, rect)
+        if show_details and light.label is not None:
             text = self.fonts["light_label"].render(light.label, True, (210, 210, 210))
-            surface.blit(text, (x + gfx.scale_value(15, self.scale), y - gfx.scale_value(5, self.scale)))
-        counter = self.fonts["light_small"].render(f"{light.ticks_since_change}/{light.period_ticks}", True, (200, 200, 200))
-        surface.blit(counter, (x - gfx.scale_value(12, self.scale), y - gfx.scale_value(36, self.scale)))
-
-    @beartype
-    def draw_lamp(self, surface: object, center: Position, color: ColorRGBA, lit: bool) -> None:
-        fill = color if lit else color.darker().darker()
-        radius = gfx.scale_value(10, self.scale)
-        if lit:
-            glow_radius = gfx.scale_value(14, self.scale)
-            glow = pygame.Surface((glow_radius * 2, glow_radius * 2), pygame.SRCALPHA)
-            gfx.filled_circle(glow, Position(glow_radius, glow_radius), glow_radius, ColorRGBA(fill.r, fill.g, fill.b, 60))
-            surface.blit(glow, (center.x - glow_radius, center.y - glow_radius))
-        gfx.filled_circle(surface, center, radius, fill)
-        gfx.outline_circle(surface, center, radius, (0, 0, 0), gfx.scale_value(1, self.scale))
+            surface.blit(text, (rect.right + gfx.scale_value(4, self.scale), rect.centery - gfx.scale_value(5, self.scale)))
+        if show_details:
+            counter = self.fonts["light_small"].render(f"{light.ticks_since_change}/{light.period_ticks}", True, (200, 200, 200))
+            surface.blit(counter, counter.get_rect(center=(x, y - gfx.scale_value(asset.height // 2 + 7, self.scale))))
 
     @beartype
     def draw_hud(self, surface: object, lines: Sequence[object], tick_count: int, width: int, height: int) -> None:
@@ -142,11 +136,20 @@ class RuntimeMetroGYMRenderer:
     @beartype
     def draw_speed_ratio(self, surface: object, size: Position, animation_ratio: int | float) -> None:
         text = self.fonts["legend"].render(f"Speed {animation_ratio:.1f}x", True, Color.HIGHLIGHT.pygame())
+        self._draw_top_right_badge(surface, size, text, gfx.scale_value(10, self.scale))
+
+    @beartype
+    def draw_ui_mode(self, surface: object, size: Position, mode_label: str) -> None:
+        text = self.fonts["legend"].render(f"Mode {mode_label}", True, Color.STATUS_TEXT.pygame())
+        self._draw_top_right_badge(surface, size, text, gfx.scale_value(44, self.scale))
+
+    @beartype
+    def _draw_top_right_badge(self, surface: object, size: Position, text: object, top: int) -> None:
         padding_x = gfx.scale_value(10, self.scale)
         padding_y = gfx.scale_value(6, self.scale)
         rect = pygame.Rect(
             size.x - text.get_width() - padding_x * 2 - gfx.scale_value(10, self.scale),
-            gfx.scale_value(10, self.scale),
+            top,
             text.get_width() + padding_x * 2,
             text.get_height() + padding_y * 2,
         )
@@ -190,3 +193,12 @@ class RuntimeMetroGYMRenderer:
             rendered = self.fonts["legend"].render(line, True, Color.STATUS_TEXT.pygame())
             surface.blit(rendered, (rect.x + gfx.scale_value(18, self.scale), y))
             y += row_h
+
+
+def _with_alpha(surface: object, alpha: int) -> object:
+    alpha = max(0, min(255, alpha))
+    if alpha >= 255:
+        return surface
+    copy = surface.copy()
+    copy.set_alpha(alpha)
+    return copy

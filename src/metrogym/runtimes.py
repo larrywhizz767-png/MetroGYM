@@ -8,7 +8,7 @@ import pygame
 from beartype import beartype
 
 from metrogym.controls import ControlSystem, SignalRule
-from metrogym.core import ColorRGBA, Direction, PositionLike
+from metrogym.core import ColorRGBA, Direction, PositionLike, TrainAssetName, UIMode, next_ui_mode, ui_mode_label, validate_ui_mode
 from metrogym.primitives.line.extras.path import build_path
 from metrogym.primitives.line.runtime import RuntimeLine
 from metrogym.primitives.signal.runtime import RuntimeTrafficLight
@@ -56,6 +56,7 @@ class RuntimeSimulator:
         self._verbose = verbose
         self._screen: object | None = None
         self._show_help = False
+        self.ui_mode: UIMode = "minimal"
         self._keyboard = KeyboardController(self)
 
     @beartype
@@ -76,13 +77,14 @@ class RuntimeSimulator:
         color: ColorRGBA | None = None,
         start_at: int | float = 0,
         midpoint: bool = False,
+        asset: TrainAssetName | str = "metro_nose",
     ) -> RuntimeTrain:
         selected_line = line if isinstance(line, RuntimeLine) else self._lines[line]
         start_percent = 50 if midpoint and start_at == 0 else float(start_at)
         if not 0 <= start_percent <= 100:
             raise ValueError("start_at must be a percentage in the range 0..100")
         path = _rotate_path(selected_line.path, start_percent)
-        train = RuntimeTrain(id, selected_line.name, path, color if color is not None else selected_line.color, self.control)
+        train = RuntimeTrain(id, selected_line.name, path, color if color is not None else selected_line.color, self.control, asset)
         self._panel.add_object(train)
         self._trains[id] = train
         return train
@@ -167,6 +169,13 @@ class RuntimeSimulator:
     def toggle_help(self) -> None:
         self._show_help = not self._show_help
 
+    def toggle_ui_mode(self) -> None:
+        self.ui_mode = next_ui_mode(self.ui_mode)
+
+    @beartype
+    def set_ui_mode(self, mode: UIMode | str) -> None:
+        self.ui_mode = validate_ui_mode(mode)
+
     @beartype
     def show(self, *, block: bool = True) -> None:
         if not block:
@@ -194,8 +203,9 @@ class RuntimeSimulator:
                 while now - last_tick >= tick_interval:
                     self.tick()
                     last_tick += tick_interval
-                self._panel.draw(self._screen, renderer)
+                self._panel.draw(self._screen, renderer, ui_mode=self.ui_mode)
                 renderer.draw_speed_ratio(self._screen, self._panel.window_size, self.animation_ratio)
+                renderer.draw_ui_mode(self._screen, self._panel.window_size, ui_mode_label(self.ui_mode))
                 renderer.draw_help_prompt(self._screen, self._panel.window_size)
                 if self._show_help:
                     renderer.draw_help_overlay(self._screen, self._panel.window_size)
