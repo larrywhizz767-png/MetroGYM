@@ -214,13 +214,18 @@ While a pygame window is open:
 
 ## Examples
 
+The curated examples are grouped by difficulty, plus city-inspired schematic networks:
+
 | Command | What it shows |
 |---|---|
-| `uv run python examples/minimal.py` | Small starter scene using `MetroSystem.pipeline`. |
-| `uv run python examples/demo.py` | Full built-in scene. |
-| `uv run python examples/demo_london_tube.py` | Schematic London-style network. |
-| `uv run python examples/demo_collision_without_control.py` | Intentional peer collision without signal control. |
-| `uv run python examples/demo_signal_control_with_collision.py` | Signal control plus one uncontrolled collision route. |
+| `uv run python examples/Basic/simple_loop.py` | Starter loop with two train assets. |
+| `uv run python examples/Basic/two_line_shuttle.py` | Two intersecting shuttle services. |
+| `uv run python examples/Medium/signal_gate.py` | Alternating signal gates on a branch. |
+| `uv run python examples/Medium/collision_lab.py` | Collision/emergency-stop behavior with a held signal. |
+| `uv run python examples/Advanced/multi_asset_control_room.py` | Multiple assets, lines, and protected junctions. |
+| `uv run python examples/Advanced/interlocking_corridor.py` | Interlocking corridor with several controlled approaches. |
+| `uv run python examples/cities/london.py` | Minimal London Underground-inspired schematic. |
+| `uv run python examples/cities/nyc.py` | Minimal NYC Subway-inspired schematic. |
 
 ## Challenges
 
