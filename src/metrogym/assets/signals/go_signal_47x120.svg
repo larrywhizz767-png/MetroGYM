@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="47" height="120" viewBox="0 0 24 61" shape-rendering="crispEdges" role="img" aria-labelledby="title desc">
+  <title id="title">MetroGYM GO signal sprite 47x120</title>
+  <desc id="desc">Full-size B concept signal with green lamp lit and red lamp muted.</desc>
+  <rect x="6" y="48" width="12" height="4" rx="1.5" fill="#17131D"/>
+  <rect x="10" y="48" width="4" height="11" rx="1" fill="#3A3242" stroke="#7B1B83" stroke-width="0.5"/>
+  <polygon points="4,0 20,0 24,6 22,44 18,50 6,50 2,44 0,6" fill="#F05CFF"/>
+  <polygon points="5,3 19,3 21,7 19,45 5,45 3,7" fill="#2A2430" stroke="#7B1B83" stroke-width="0.6"/>
+  <rect x="7" y="7" width="10" height="14" rx="3" fill="#3A3242"/>
+  <rect x="7" y="29" width="10" height="14" rx="3" fill="#3A3242"/>
+  <circle cx="12" cy="14" r="5" fill="#6E1D2A" stroke="#7B1B83" stroke-width="0.75"/>
+  <circle cx="10.6" cy="12.4" r="1" fill="#F5EAFE" opacity="0.18"/>
+  <circle cx="12" cy="36" r="7.75" fill="#2DFF9A" opacity="0.42"/>
+  <circle cx="12" cy="36" r="5" fill="#2DFF9A" stroke="#7B1B83" stroke-width="0.75"/>
+  <circle cx="10.6" cy="34.4" r="1" fill="#F5EAFE" opacity="0.88"/>
+  <rect x="8" y="24" width="8" height="2" rx="1" fill="#8A8194" opacity="0.55"/>
+</svg>

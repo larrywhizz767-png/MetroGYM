@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="40" viewBox="0 0 32 20" shape-rendering="crispEdges" role="img" aria-labelledby="title desc">
+  <title id="title">MetroGYM city tram train sprite 64x40</title>
+  <desc id="desc">Urban tram train variant on a standardized 32 by 20 sprite canvas.</desc>
+  <rect x="3" y="2" width="26" height="15" rx="3" fill="#F05CFF"/>
+  <rect x="5" y="4" width="22" height="11" rx="2" fill="#1D8F65"/>
+  <rect x="7" y="5" width="18" height="5" rx="1" fill="#3E3648"/>
+  <rect x="15" y="5" width="1" height="5" fill="#F5EAFE"/>
+  <rect x="8" y="12" width="16" height="3" rx="0.7" fill="#4DFFAD"/>
+  <circle cx="6" cy="14" r="1.4" fill="#FFD21F"/>
+  <circle cx="26" cy="14" r="1.4" fill="#FFD21F"/>
+  <rect x="6" y="17" width="6" height="2" rx="0.5" fill="#111111"/>
+  <rect x="20" y="17" width="6" height="2" rx="0.5" fill="#111111"/>
+</svg>
