@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from metrogym import Color, MetroSystem
+from metrogym import Color, MetroSystem, train
 from metrogym.primitives import Line, Network, Station, Train
 
 
@@ -9,6 +9,7 @@ def shuttle(*points: tuple[int, int]) -> list[tuple[int, int]]:
 
 
 def build_system(*, tick_ms: int = 350, render_scale: int | float = 2) -> MetroSystem:
+    parked = train.always_hold()
     return MetroSystem(name="Basic: Two Line Shuttle", tick_ms=tick_ms, render_scale=render_scale).pipeline([
         Network([
             Line("East-West", Color.BLUE, shuttle((80, 180), (300, 180), (540, 180))),
@@ -19,8 +20,8 @@ def build_system(*, tick_ms: int = 350, render_scale: int | float = 2) -> MetroS
             Station("North", (300, 80)),
             Station("South", (300, 380)),
         ]),
-        Train("EW", line="East-West", asset="metro_nose"),
-        Train("NS", line="North-South", asset="bullet_metro"),
+        Train("EW", line="East-West", solver=parked, asset="metro_nose"),
+        Train("NS", line="North-South", solver=parked, asset="bullet_metro"),
     ])
 
 

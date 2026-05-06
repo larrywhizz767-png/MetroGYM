@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from metrogym import Color, MetroSystem
+from metrogym import Color, MetroSystem, train
 from metrogym.primitives import ControlRule, Line, Network, Signal, Station, Train
 
 
 def build_system(*, tick_ms: int = 320, render_scale: int | float = 2) -> MetroSystem:
+    parked = train.always_hold()
     return MetroSystem(name="Medium: Signal Gate", tick_ms=tick_ms, render_scale=render_scale).pipeline([
         Network([
             Line("Branch", Color.PURPLE, [(80, 260), (220, 260), (360, 180), (520, 180), (600, 260), (520, 340), (360, 340), (220, 260), (80, 260)]),
@@ -13,8 +14,8 @@ def build_system(*, tick_ms: int = 320, render_scale: int | float = 2) -> MetroS
             Station("North Platform", (520, 180)),
             Station("South Platform", (520, 340)),
         ]),
-        Train("Local", line="Branch", asset="city_tram"),
-        Train("Express", line="Branch", start_at=50, asset="bullet_metro"),
+        Train("Local", line="Branch", solver=parked, asset="city_tram"),
+        Train("Express", line="Branch", start_at=50, solver=parked, asset="bullet_metro"),
         Signal(
             "Gate-North",
             (360, 165),

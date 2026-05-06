@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from metrogym import Color, MetroSystem
+from metrogym import Color, MetroSystem, train
 from metrogym.primitives import ControlRule, Line, Network, Signal, Station, Train
 
 
 def build_system(*, tick_ms: int = 260, render_scale: int | float = 2) -> MetroSystem:
+    parked = train.always_hold()
     return MetroSystem(name="Advanced: Interlocking Corridor", tick_ms=tick_ms, render_scale=render_scale).pipeline([
         Network([
             Line("Mainline", Color.RED, [(80, 160), (220, 160), (360, 160), (500, 160), (620, 160), (500, 160), (360, 160), (220, 160), (80, 160)]),
@@ -19,10 +20,10 @@ def build_system(*, tick_ms: int = 260, render_scale: int | float = 2) -> MetroS
             Station("North Ring", (600, 80)),
             Station("South Ring", (120, 360)),
         ]),
-        Train("MAIN-W", line="Mainline", asset="metro_nose"),
-        Train("MAIN-E", line="Mainline", start_at=50, asset="bullet_metro"),
-        Train("AIR", line="Airport", asset="city_tram"),
-        Train("ORB", line="Orbital", asset="maintenance"),
+        Train("MAIN-W", line="Mainline", solver=parked, asset="metro_nose"),
+        Train("MAIN-E", line="Mainline", start_at=50, solver=parked, asset="bullet_metro"),
+        Train("AIR", line="Airport", solver=parked, asset="city_tram"),
+        Train("ORB", line="Orbital", solver=parked, asset="maintenance"),
         Signal("A-Main", (220, 135), initial_green=True, period_ticks=4, label="A-M", controls=ControlRule("Mainline", (220, 160), (360, 160))),
         Signal("B-Main", (360, 135), initial_green=False, period_ticks=4, label="B-M", controls=ControlRule("Mainline", (360, 160), (500, 160))),
         Signal("C-Air", (380, 275), initial_green=True, period_ticks=5, label="C-A", controls=ControlRule("Airport", (360, 260), (500, 360))),
