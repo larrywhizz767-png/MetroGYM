@@ -43,9 +43,15 @@ class RuntimeTrain:
         self._position = self.path[0]
         self._path_index = 0
         self._peers: list[RuntimeTrain] = []
+        self._ignored_peer_ids: set[str] = set()
+        self._active = True
         self._stopped = False
         self._wait_ticks = 0
         self.collision_events: list[CollisionEvent] = []
+
+    @property
+    def active(self) -> bool:
+        return self._active
 
     @property
     def stopped(self) -> bool:
@@ -68,7 +74,24 @@ class RuntimeTrain:
     def set_peers(self, peers: Iterable["RuntimeTrain"]) -> None:
         self._peers = list(peers)
 
+    @beartype
+    def ignore_peers(self, peer_ids: Iterable[str]) -> None:
+        self._ignored_peer_ids.update(peer_ids)
+
+    def clear_ignored_peers(self) -> None:
+        self._ignored_peer_ids.clear()
+
+    def deactivate(self) -> None:
+        self._active = False
+        self._stopped = True
+        self.speed = 0.0
+        self.target_speed = 0.0
+
+    def activate(self) -> None:
+        self._active = True
+
     def reset(self) -> None:
+        self._active = True
         self._position = self.path[0]
         self._path_index = 0
         self._stopped = False
@@ -76,9 +99,13 @@ class RuntimeTrain:
         self.speed = self.default_speed
         self.target_speed = self.default_speed
         self.collision_events.clear()
+        self.clear_ignored_peers()
         reset_solver_state(self.solver)
 
     def update(self) -> None:
+        if not self._active:
+            self._stopped = True
+            return
         if self.control is not None and self.control.emergency_stopped:
             self._stopped = True
             return
@@ -136,7 +163,7 @@ class RuntimeTrain:
             return False
 
         for peer in self._peers:
-            if peer is self:
+            if peer is self or not peer.active or peer.id in self._ignored_peer_ids:
                 continue
             if next_point.distance(peer.position) < TRAIN_COLLISION_RADIUS:
                 self._stopped = False
@@ -154,6 +181,8 @@ class RuntimeTrain:
         return True
 
     def draw(self, surface: object, *args: object, **kwargs: object) -> None:
+        if not self._active:
+            return
         renderer = kwargs.get("renderer")
         if renderer is None:
             raise ValueError("Train.draw requires renderer=...")

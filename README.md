@@ -219,6 +219,7 @@ Examples are split into city reproductions and tutorials. Network tutorials keep
 | `uv run python examples/cities_reproduction/london.py` | London-style multi-line schematic with interlocking, train spacing, signals, and maintenance response. |
 | `uv run python examples/cities_reproduction/nyc.py` | NYC-style multi-borough schematic with dispatching, interlocking, train spacing, and maintenance service. |
 | `uv run python examples/cities_reproduction/beijing.py` | Minimal Beijing-inspired network with ring, trunk, airport, and intelligent interchange signals. |
+| `uv run python examples/cities_reproduction/paris.py` | Paris-style spacious network with Metro and RER solvers, acceleration/braking profiles, a deliberate Bastille collision, and maintenance inspection response. |
 | `uv run python examples/tutorials/networks/Basic/simple_loop.py` | Basic network: one loop, stations, and stopped train assets. |
 | `uv run python examples/tutorials/networks/Basic/two_line_shuttle.py` | Basic network: two crossing shuttle lines. |
 | `uv run python examples/tutorials/networks/Medium/signal_gate.py` | Medium network: branch topology with signal primitives. |

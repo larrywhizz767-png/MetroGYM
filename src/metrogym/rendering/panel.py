@@ -49,6 +49,11 @@ class SimulationPanel:
         self.objects.append(obj)
 
     @beartype
+    def remove_object(self, obj: RuntimeTrain | RuntimeTrafficLight) -> None:
+        if obj in self.objects:
+            self.objects.remove(obj)
+
+    @beartype
     def addObject(self, obj: RuntimeTrain | RuntimeTrafficLight) -> None:
         self.add_object(obj)
 

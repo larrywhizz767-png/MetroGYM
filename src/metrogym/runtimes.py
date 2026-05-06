@@ -104,6 +104,16 @@ class RuntimeSimulator:
             train.set_peers(peers)
 
     @beartype
+    def ignore_train_collisions(self, train_id: str, peer_ids: Iterable[str]) -> None:
+        self._trains[train_id].ignore_peers(peer_ids)
+
+    @beartype
+    def deactivate_train(self, train_id: str) -> None:
+        train = self._trains[train_id]
+        train.deactivate()
+        self._panel.remove_object(train)
+
+    @beartype
     def add_traffic_light(
         self,
         id: str,
@@ -168,6 +178,8 @@ class RuntimeSimulator:
     def world_view(self, *, train_id: str | None = None, signal_id: str | None = None) -> WorldView:
         trains: dict[str, TrainSnapshot] = {}
         for id, train in self._trains.items():
+            if not train.active:
+                continue
             trains[id] = TrainSnapshot(
                 id=id,
                 line_name=train.line_name,
