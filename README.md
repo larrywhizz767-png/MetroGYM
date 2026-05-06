@@ -214,6 +214,8 @@ While a pygame window is open:
 
 Examples are split into city reproductions and tutorials. Network tutorials keep trains stopped so learners can focus on topology; solver tutorials add the control logic.
 
+For optional LLM-backed signal queueing, install the extra with `uv sync --extra llm` and export `OPENAI_API_KEY`. Use the `LLMSignalQueueHandler` primitive to create an LLM-backed signal post, with provider-specific implementations under `primitives/signal/providers/` and OpenAI enabled by default. Pick the model with `model=...`, optionally pass a `decision_prompt`, and control exposed context with `include_signal_state`, `include_queue_candidates`, and `include_world_state`.
+
 | Command | What it shows |
 |---|---|
 | `uv run python examples/cities_reproduction/london.py` | London-style multi-line schematic with interlocking, train spacing, signals, and maintenance response. |
@@ -234,6 +236,7 @@ Examples are split into city reproductions and tutorials. Network tutorials keep
 | `uv run python examples/tutorials/solvers/Advanced/event_reactive_control.py` | Advanced agent API: two trains queue through a stable lock-then-grant junction. |
 | `uv run python examples/tutorials/solvers/Advanced/collision_response.py` | Advanced agent API: broken signal causes collision, maintenance response, and reset. |
 | `uv run python examples/tutorials/solvers/Advanced/four_train_junction_queue.py` | Advanced variant: four trains share one queued junction safely. |
+| `uv run python examples/tutorials/solvers/Advanced/llm_signal_queue.py` | Advanced LLM primitive: an `LLMSignalQueueHandler` holds all trains, asks OpenAI which train to release next, then grants the chosen route. |
 | `uv run python examples/tutorials/solvers/Advanced/circular_ring_dispatch.py` | Advanced circular solver: ring trains and chords coordinate through merge dispatchers. |
 | `uv run python examples/tutorials/solvers/Advanced/speed_ramp_commuter.py` | Advanced speed solver: trains ramp smoothly into faster commuter cruising. |
 | `uv run python examples/tutorials/solvers/Advanced/signal_brake_profile.py` | Advanced speed solver: trains brake progressively into a timed signal approach. |

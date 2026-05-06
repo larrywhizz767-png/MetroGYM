@@ -5,7 +5,8 @@ from metrogym.core import Color, ColorRGBA, Position
 from metrogym.core.signal_assets import SignalAsset, SignalAssetState, load_signal_asset_surface, signal_asset
 from metrogym.core.train_assets import TrainAsset, TrainAssetName, load_train_asset_surface, train_asset
 from metrogym.events import CollisionEvent
-from metrogym.primitives import ControlRule, Line, Network, Signal, Station, Train
+from metrogym.primitives import ControlRule, LLMSignalQueueHandler, Line, Network, Signal, Station, Train
+from metrogym.primitives.signal import BaseLLMProvider, BaseLLMQueueSignalAgent, OpenAIELLProvider, SignalQueueCandidate, SignalQueuePlan
 from metrogym.primitives.line import build_path
 from metrogym.primitives.signal import TrafficLight
 from metrogym.rendering import MetroGYMRenderer, SimulationPanel
@@ -68,9 +69,13 @@ __all__ = [
     "AlwaysRunSolver",
     "AlwaysStopSolver",
     "AnyOfTrainPolicies",
+    "BaseLLMProvider",
+    "BaseLLMQueueSignalAgent",
     "CollisionAwareSolver",
     "CompositeTrainSolver",
     "FixedSignalSolver",
+    "LLMSignalQueueHandler",
+    "OpenAIELLProvider",
     "PriorityQueueSignalSolver",
     "PulseSignalSolver",
     "PulseTrainSolver",
@@ -78,6 +83,8 @@ __all__ = [
     "SignalAgent",
     "SignalDecision",
     "SignalObservation",
+    "SignalQueueCandidate",
+    "SignalQueuePlan",
     "SignalQueueView",
     "SignalSnapshot",
     "SignalSolver",

@@ -11,6 +11,11 @@ dependencies = [
     "pygame>=2.6.1",
 ]
 
+[project.optional-dependencies]
+llm = [
+    "ell-ai[all]>=0.0.16",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
