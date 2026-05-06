@@ -20,8 +20,15 @@ class SignalRule:
 
     @beartype
     def blocks(self, train: object, current: Position, next_position: Position) -> bool:
-        if self.light.green or train.line_name != self.line_name:
+        if train.line_name != self.line_name:
             return False
+        if self.light.green:
+            granted_train_id = getattr(self.light, "granted_train_id", None)
+            if granted_train_id is not None:
+                return train.id != granted_train_id
+            granted_line = getattr(self.light, "granted_line", None)
+            if granted_line is None or granted_line == self.line_name:
+                return False
         if self.direction in {"forward", "both"} and is_entering_segment(self.start, self.end, current, next_position):
             return True
         if self.direction in {"reverse", "both"} and is_entering_segment(self.end, self.start, current, next_position):
@@ -51,6 +58,7 @@ class ControlSystem:
     ) -> SignalRule:
         line_name = line.name if hasattr(line, "name") else line
         signal = self._lights[light] if isinstance(light, str) else light
+        signal.control = self
         rule = SignalRule(line_name, to_position(start), to_position(end), signal, direction)
         self.rules.append(rule)
         return rule

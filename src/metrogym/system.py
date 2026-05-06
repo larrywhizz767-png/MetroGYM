@@ -11,6 +11,7 @@ from metrogym.primitives import Line, Network, Station
 from metrogym.rendering.primitives import MetroGYMRenderer
 from metrogym.runtimes import RuntimeSimulator
 from metrogym.templates.primitive import BaseMetroPrimitive
+from metrogym.validation import validation_registry
 
 
 @beartype
@@ -107,17 +108,18 @@ class MetroSystem:
 
     @beartype
     def set_params(self, **params: object) -> "MetroSystem":
+        registry = validation_registry()
         step_map = dict(self.steps)
         for key, value in params.items():
             if "__" in key:
                 step_name, param_name = key.split("__", 1)
                 if step_name not in step_map:
-                    raise ValueError(f"Unknown pipeline step {step_name!r}")
+                    registry.raise_issue(registry.system_issue("unknown_pipeline_step", path=f"MetroSystem.steps[{step_name}]", step_name=step_name))
                 step_map[step_name].set_params(**{param_name: value})
             elif hasattr(self, key):
                 setattr(self, key, value)
             else:
-                raise ValueError(f"Invalid parameter {key!r} for MetroSystem")
+                registry.raise_issue(registry.system_issue("invalid_system_param", path=f"MetroSystem.{key}", param=key))
         return self
 
     def _ordered_steps(self) -> list[tuple[str, BaseMetroPrimitive]]:
@@ -134,22 +136,24 @@ class MetroSystem:
         return float(scale)
 
     def _validate_pipeline_shape(self) -> None:
+        registry = validation_registry()
         networks = [primitive for _name, primitive in self.steps if isinstance(primitive, Network)]
         if len(networks) != 1:
-            raise ValueError("MetroSystem requires exactly one Network")
+            registry.raise_issue(registry.system_issue("exactly_one_network", path="MetroSystem.pipeline"))
         for _name, primitive in self.steps:
             if isinstance(primitive, (Line, Station)):
-                raise ValueError("Line and Station primitives must be placed inside Network")
+                registry.raise_issue(registry.system_issue("network_only_primitives", path=f"MetroSystem.pipeline.{type(primitive).__name__}"))
 
     def _validate(self, context: MetroContext) -> None:
+        registry = validation_registry()
         if context.network_count != 1:
-            raise ValueError("MetroSystem requires exactly one Network")
+            registry.raise_issue(registry.system_issue("exactly_one_network", path="MetroContext.network_count"))
         if not context.line_names:
-            raise ValueError("MetroSystem requires at least one line")
+            registry.raise_issue(registry.system_issue("at_least_one_line", path="MetroContext.line_names"))
         if not context.station_names:
-            raise ValueError("MetroSystem requires at least one station")
+            registry.raise_issue(registry.system_issue("at_least_one_station", path="MetroContext.station_names"))
         if not context.train_ids:
-            raise ValueError("MetroSystem requires at least one train")
+            registry.raise_issue(registry.system_issue("at_least_one_train", path="MetroContext.train_ids"))
 
     def _auto_link_peers(self, context: MetroContext) -> None:
         for train_ids in context.auto_peer_trains.values():

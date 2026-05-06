@@ -1,104 +1,126 @@
 # MetroGYM
 
-Pure Python **pygame** MetroGYM library for teaching metro systems,
-train control, signal control, graph search, and runtime architecture.
-The installable `metrogym` package contains reusable library code; runnable
-teaching scenes live in `examples/` and `challenges/`.
+MetroGYM is a pure Python, pygame-powered teaching library for metro-network simulation, signalling, and control logic. It is intentionally small and inspectable: you build a network from primitives, attach train and signal agents, then run it visually or headlessly.
 
-## Quick Start
-
-From the repository root:
+## Install
 
 ```bash
 uv sync
-uv run python examples/minimal.py
-uv run python examples/demo.py
-uv run python challenges/_smoke.py
 ```
 
-## Canonical API
+Python requirement: `>=3.10,<3.14`.
 
-MetroGYM uses one primitive-first, scikit-learn-style construction path:
+## Quick Start
 
 ```python
-from metrogym import Color, MetroSystem
+from metrogym import Color, MetroSystem, signal, train
 from metrogym.primitives import ControlRule, Line, Network, Signal, Station, Train
-from metrogym.rendering import MetroGYMRenderer
 
-system = MetroSystem(name="My First Metro", tick_ms=400, render_scale=1).pipeline([
+system = MetroSystem(name="Quick Start", render_scale=2).pipeline([
     Network([
-        Line("Loop", Color(80, 200, 255), [
-            (120, 120), (560, 120), (560, 380), (120, 380), (120, 120),
-        ]),
-        Station("Origin", (120, 120)),
-        Station("Far Side", (560, 380)),
+        Line("Loop", Color.BLUE, [(120, 120), (560, 120), (560, 360), (120, 360), (120, 120)]),
+        Station("West", (120, 120)),
+        Station("North", (560, 120)),
+        Station("South", (560, 360)),
     ]),
-    Train("A", line="Loop"),
-    Train("B", line="Loop", start_at=50),
+    Train("A", line="Loop", solver=train.always_proceed(), asset="metro_nose"),
     Signal(
-        "TL-Origin",
-        (120, 120),
-        controls=ControlRule("Loop", (120, 120), (560, 120)),
+        "North Gate",
+        (560, 85),
+        controls=ControlRule("Loop", (560, 120), (560, 360)),
+        solver=signal.pulse(green_ticks=5, red_ticks=3),
     ),
-    MetroGYMRenderer(scale=1),
 ])
 
 system.fit().run()
 ```
 
-`MetroSystem(...)` owns runtime parameters. `.pipeline([...])` stacks public
-primitives. `.fit()` validates and builds the runtime engine. `.run()` starts
-the renderer, and `.step(n)` advances headlessly.
+## Agent UX
 
-## Architecture
+The public solver surface now supports domain-specific observations and typed decisions.
+
+### Train decisions
+
+```python
+from metrogym import TrainAgent, TrainObservation, train
+
+class SafeCruise(TrainAgent):
+    def act(self, observation: TrainObservation):
+        if observation.signals.next and not observation.signals.next.signal_green:
+            return train.hold(reason="red signal ahead")
+        return train.accelerate_to(3.0, reason="clear track ahead")
+```
+
+### Signal decisions
+
+```python
+from metrogym import SignalAgent, SignalObservation, signal
+
+class JunctionController(SignalAgent):
+    def act(self, observation: SignalObservation):
+        if observation.queue.has_conflict:
+            return signal.lock_all(reason="resolve conflict first")
+        if observation.queue.next_train is not None:
+            return signal.grant(observation.queue.next_train)
+        return signal.grant()
+```
+
+### Speed control actions
+
+```python
+from metrogym import train
+
+train.accelerate_to(4.0)
+train.brake_to(1.0)
+train.change_speed_by(-0.5)
+train.speed_up(0.5)
+train.slow_down(0.5)
+train.proceed_at(2.0)
+```
+
+Train speed now eases per tick toward its target rather than jumping instantly.
+
+### Built-in combinators
+
+```python
+from metrogym import train
+
+solver = train.all_of(
+    train.respect_signals(approach_distance=55.0),
+    train.avoid_collisions(min_distance=70.0),
+)
+```
+
+## Core Layout
 
 ```text
 src/metrogym/
-  __init__.py
-  system.py                         MetroSystem canonical pipeline facade
+  __init__.py                       public package exports
+  system.py                         MetroSystem pipeline facade and validation
   context.py                        MetroContext shared build state
-  runtimes.py                       runtime engine and RuntimeObject protocol
-  controls.py                       ControlSystem and runtime SignalRule
-  events.py                         passive event records such as CollisionEvent
-
-  templates/
-    primitive.py                    BaseMetroPrimitive fit/transform/params contract
+  runtimes.py                       RuntimeSimulator and runtime snapshots
+  controls.py                       ControlSystem and segment protection
+  events.py                         passive event records such as collisions
+  solvers.py                        agent decisions, observations, helpers, combinators
+  validation.py                     YAML-backed validation registry and structured issues
+  rules/validation.yaml             declarative validation catalog
 
   core/
-    coordinates.py                  Position, PositionLike, Direction, coercion helpers
-    colors.py                       ColorRGBA and Color palette/factory
+    colors.py                       Color palette and ColorRGBA
+    coordinates.py                  Position and direction helpers
+    constants.py                    shared simulation constants
 
   primitives/
-    __init__.py                     public primitive exports
     network.py                      required Network aggregator
-    line/
-      line.py                       public Line primitive
-      runtime.py                    RuntimeLine state
-      control.py                    line-specific control hooks
-      extras/path.py                path interpolation helpers
-    station/
-      station.py                    public Station primitive
-      runtime.py                    RuntimeStation state
-      control.py                    station-specific control hooks
-    train/
-      train.py                      public Train primitive
-      runtime.py                    RuntimeTrain movement/collision logic
-      control.py                    train-specific control hooks
-    signal/
-      signal.py                     public Signal primitive
-      runtime.py                    RuntimeTrafficLight state
-      control.py                    segment geometry helpers
-      extras/control_rule.py        ControlRule config value object
+    line/                           line primitive and runtime line
+    station/                        station primitive and runtime station
+    train/                          train primitive and runtime motion logic
+    signal/                         signal primitive and runtime traffic light
 
   rendering/
-    panel.py                        SimulationPanel scene container and tick loop
-    _utils/gfx.py                   pygame.gfxdraw primitives, scaling, fonts
-    _utils/keyboard.py              visualisation keyboard shortcuts
-    primitives/metrogym_renderer/
-      metrogym_renderer.py          public MetroGYMRenderer primitive
-      runtime.py                    RuntimeMetroGYMRenderer drawing implementation
-      extras/assets.py              asset/font paths
-      extras/constants.py           renderer constants
+    panel.py                        SimulationPanel tick and draw loop
+    _utils/                         pygame helpers and keyboard shortcuts
+    primitives/metrogym_renderer/   renderer primitive and runtime renderer
 ```
 
 Root-level teaching material:
@@ -106,16 +128,13 @@ Root-level teaching material:
 ```text
 examples/                           runnable MetroGYM scenes
 challenges/                         graph-search teaching challenges
-  framework.py                      Graph/check/run helpers
-  envs.py                           challenge graph fixtures
-  solutions/                        instructor references
 ```
 
 ## Public Primitives
 
 | Primitive | Purpose |
 |---|---|
-| `MetroSystem` | Owns runtime parameters, pipeline steps, validation, build, run lifecycle. |
+| `MetroSystem` | Owns runtime parameters, pipeline steps, validation, build, and run life cycle. |
 | `Network` | Required aggregator for infrastructure primitives. |
 | `Line` | Defines a named coloured path from waypoints. Must be inside `Network`. |
 | `Station` | Defines a labelled station marker. Must be inside `Network`. |
@@ -125,6 +144,10 @@ challenges/                         graph-search teaching challenges
 | `MetroGYMRenderer` | Optional renderer primitive for renderer-level parameters such as `scale`. |
 
 ## Validation Rules
+
+`fit()` validates the pipeline and runtime graph.
+
+Validation is now driven by `src/metrogym/rules/validation.yaml`, with Python validators in `src/metrogym/validation.py` handling graph and geometry-aware checks.
 
 `fit()` validates the pipeline and runtime graph:
 
@@ -141,7 +164,7 @@ challenges/                         graph-search teaching challenges
 11. every signal control references an existing line;
 12. every signal control endpoint is on the referenced line path.
 
-## Fit / Run Lifecycle
+## Fit / Run Life Cycle
 
 `fit()` performs the build and validation:
 
@@ -154,20 +177,6 @@ challenges/                         graph-search teaching challenges
 7. stores the build context and runtime simulator on the system.
 
 `run()` starts the pygame loop. `step(n)` advances headlessly by `n` ticks.
-
-## Train Collision Defaults
-
-```python
-Train("R1", line="Red")
-Train("R2", line="Red", start_at=50)
-```
-
-Same-line trains are automatically linked for collision checks. Opt out per
-train:
-
-```python
-Train("Maintenance", line="Red", peer_with_line=False)
-```
 
 ## Signal Controls
 
@@ -182,21 +191,7 @@ Signal(
 )
 ```
 
-If the signal is red, trains cannot enter the controlled segment. Trains already
-inside the segment continue through.
-
-Multiple controls:
-
-```python
-Signal(
-    "Central Box",
-    position=(300, 270),
-    controls=[
-        ControlRule("Red", (540, 140), (60, 140)),
-        ControlRule("Blue", (200, 50), (200, 350)),
-    ],
-)
-```
+If the signal is red, trains cannot enter the controlled segment. Trains already inside the segment continue through.
 
 ## Runtime Controls
 
@@ -209,36 +204,55 @@ While a pygame window is open:
 | `Ctrl++` | Jump forward by 5% of current ticks. |
 | `Ctrl+D` | Increase animation ratio by `+0.5x`. |
 | `Ctrl+A` | Decrease animation ratio by `-0.5x`, down to `0.5x`. |
+| `Ctrl+L` | Cycle the large transparent log overlay through `off`, `minimalist`, `trains`, `signals`, and `collisions`. Collision rows are highlighted in red. |
+| Left mouse drag | Pan the map and grid. |
+| Mouse wheel | Zoom in and out. |
 | `Ctrl+Q` | Quit the visualisation. |
 | `Ctrl+H` | Toggle the help modal. |
 
 ## Examples
 
-The curated examples are grouped by difficulty, plus city-inspired schematic networks:
+Examples are split into city reproductions and tutorials. Network tutorials keep trains stopped so learners can focus on topology; solver tutorials add the control logic.
 
 | Command | What it shows |
 |---|---|
-| `uv run python examples/Basic/simple_loop.py` | Starter loop with two train assets. |
-| `uv run python examples/Basic/two_line_shuttle.py` | Two intersecting shuttle services. |
-| `uv run python examples/Medium/signal_gate.py` | Alternating signal gates on a branch. |
-| `uv run python examples/Medium/collision_lab.py` | Collision/emergency-stop behavior with a held signal. |
-| `uv run python examples/Advanced/multi_asset_control_room.py` | Multiple assets, lines, and protected junctions. |
-| `uv run python examples/Advanced/interlocking_corridor.py` | Interlocking corridor with several controlled approaches. |
-| `uv run python examples/cities/london.py` | Minimal London Underground-inspired schematic. |
-| `uv run python examples/cities/nyc.py` | Minimal NYC Subway-inspired schematic. |
+| `uv run python examples/cities_reproduction/london.py` | London-style multi-line schematic with interlocking, train spacing, signals, and maintenance response. |
+| `uv run python examples/cities_reproduction/nyc.py` | NYC-style multi-borough schematic with dispatching, interlocking, train spacing, and maintenance service. |
+| `uv run python examples/cities_reproduction/beijing.py` | Minimal Beijing-inspired network with ring, trunk, airport, and intelligent interchange signals. |
+| `uv run python examples/tutorials/networks/Basic/simple_loop.py` | Basic network: one loop, stations, and stopped train assets. |
+| `uv run python examples/tutorials/networks/Basic/two_line_shuttle.py` | Basic network: two crossing shuttle lines. |
+| `uv run python examples/tutorials/networks/Medium/signal_gate.py` | Medium network: branch topology with signal primitives. |
+| `uv run python examples/tutorials/networks/Medium/collision_lab.py` | Medium network: protected loop, service spur, and collision geometry. |
+| `uv run python examples/tutorials/networks/Advanced/interlocking_corridor.py` | Advanced network: multiple junctions and interlocking signal posts. |
+| `uv run python examples/tutorials/networks/Advanced/multi_asset_control_room.py` | Advanced network: several lines, assets, depots, and central junctions. |
+| `uv run python examples/tutorials/networks/Advanced/circular_city_ring.py` | Advanced network: circular city ring with radial chords, merge signals, and orbital geometry. |
+| `uv run python examples/tutorials/solvers/Basic/always_run.py` | Basic agent API: a train that always proceeds. |
+| `uv run python examples/tutorials/solvers/Basic/red_signal_stop.py` | Basic agent API: a train that holds for a red signal. |
+| `uv run python examples/tutorials/solvers/Medium/pulse_train.py` | Medium agent API: pulse-running train with a signal-aware peer. |
+| `uv run python examples/tutorials/solvers/Medium/collision_aware.py` | Medium agent API: faster follower holds before colliding. |
+| `uv run python examples/tutorials/solvers/Advanced/event_reactive_control.py` | Advanced agent API: two trains queue through a stable lock-then-grant junction. |
+| `uv run python examples/tutorials/solvers/Advanced/collision_response.py` | Advanced agent API: broken signal causes collision, maintenance response, and reset. |
+| `uv run python examples/tutorials/solvers/Advanced/four_train_junction_queue.py` | Advanced variant: four trains share one queued junction safely. |
+| `uv run python examples/tutorials/solvers/Advanced/circular_ring_dispatch.py` | Advanced circular solver: ring trains and chords coordinate through merge dispatchers. |
+| `uv run python examples/tutorials/solvers/Advanced/speed_ramp_commuter.py` | Advanced speed solver: trains ramp smoothly into faster commuter cruising. |
+| `uv run python examples/tutorials/solvers/Advanced/signal_brake_profile.py` | Advanced speed solver: trains brake progressively into a timed signal approach. |
 
 ## Challenges
 
-Challenge files live in `challenges/`.
+Algorithm puzzles live in `challenges/puzzles/`. They are solved by default, print their process and result in the console, and open a MetroGYM visualisation when run directly.
 
-- Students implement `solve(graph, src, dst) -> list[str]`.
-- `challenges/framework.py` validates the route and visualises it.
-- `challenges/envs.py` defines `easy_graph`, `medium_graph`, and `london_graph`.
+| Command | Concept |
+|---|---|
+| `uv run python challenges/puzzles/01_bfs_shortest_stops.py` | Breadth-first search on an unweighted metro graph. |
+| `uv run python challenges/puzzles/02_binary_search_arrivals.py` | Binary search for the first arrival at or after a target tick. |
+| `uv run python challenges/puzzles/03_dijkstra_fastest_route.py` | Weighted fastest-route search. |
+| `uv run python challenges/puzzles/04_dispatch_queue.py` | Greedy dispatch ordering for a merge segment. |
+| `uv run python challenges/puzzles/05_signal_interlocking.py` | Safe release order for conflicting signal paths. |
 
-Instructor smoke check:
+Headless puzzle smoke check:
 
 ```bash
-uv run python challenges/_smoke.py
+uv run python challenges/puzzles/_smoke.py
 ```
 
 ## Headless Use

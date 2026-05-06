@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from beartype import beartype
 
+from metrogym.validation import validation_registry
+
 
 @beartype
 class BaseMetroPrimitive:
@@ -30,8 +32,9 @@ class BaseMetroPrimitive:
 
     @beartype
     def set_params(self, **params: object) -> "BaseMetroPrimitive":
+        registry = validation_registry()
         for key, value in params.items():
             if not hasattr(self, key):
-                raise ValueError(f"Invalid parameter {key!r} for {type(self).__name__}")
+                registry.raise_issue(registry.system_issue("invalid_system_param", path=f"{type(self).__name__}.{key}", param=key))
             setattr(self, key, value)
         return self

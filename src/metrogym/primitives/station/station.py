@@ -4,6 +4,7 @@ from beartype import beartype
 
 from metrogym.core.coordinates import PositionLike
 from metrogym.templates.primitive import BaseMetroPrimitive
+from metrogym.validation import validation_registry
 
 
 @beartype
@@ -19,8 +20,9 @@ class Station(BaseMetroPrimitive):
 
     @beartype
     def transform(self, context: object) -> object:
+        registry = validation_registry()
         if self.name in context.station_names:
-            raise ValueError(f"Duplicate station name: {self.name}")
+            registry.raise_issue(registry.primitive_issue("Station", "duplicate_name", path=f"Station[name={self.name}]", name=self.name))
         context.simulator.add_station(self.name, self.position, self.radius)
         context.station_names.add(self.name)
         return context

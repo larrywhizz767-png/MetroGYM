@@ -7,7 +7,9 @@ from beartype import beartype
 from metrogym.core.coordinates import PositionLike, to_position
 from metrogym.primitives.signal.control import path_contains
 from metrogym.primitives.signal.extras.control_rule import ControlRule, ControlRuleLike
+from metrogym.solvers import SolverLike
 from metrogym.templates.primitive import BaseMetroPrimitive
+from metrogym.validation import validation_registry
 
 
 @beartype
@@ -24,6 +26,7 @@ class Signal(BaseMetroPrimitive):
         initial_green: bool = True,
         period_ticks: int = 5,
         label: str | None = None,
+        solver: SolverLike | None = None,
     ):
         self.id = id
         self.position = position
@@ -31,27 +34,30 @@ class Signal(BaseMetroPrimitive):
         self.initial_green = initial_green
         self.period_ticks = period_ticks
         self.label = label
+        self.solver = solver
 
     @beartype
     def transform(self, context: object) -> object:
+        registry = validation_registry()
         if self.id in context.signal_ids:
-            raise ValueError(f"Duplicate signal id: {self.id}")
+            registry.raise_issue(registry.primitive_issue("Signal", "duplicate_id", path=f"Signal[id={self.id}]", id=self.id))
         signal = context.simulator.add_traffic_light(
             self.id,
             self.position,
             initial_green=self.initial_green,
             period_ticks=self.period_ticks,
             label=self.label,
+            solver=self.solver,
         )
         context.signal_ids.add(self.id)
         for rule in self._normalised_controls():
             if rule.line not in context.line_names:
-                raise ValueError(f"Signal {self.id!r} controls unknown line {rule.line!r}")
+                registry.raise_issue(registry.cross_object_issue("signal_controls_known_line", path=f"Signal[id={self.id}].controls", id=self.id, line=rule.line))
             line = context.simulator.line(rule.line)
             start = to_position(rule.start)
             end = to_position(rule.end)
             if not path_contains(line.path, start) or not path_contains(line.path, end):
-                raise ValueError(f"Signal {self.id!r} controls endpoints that are not on line {rule.line!r}")
+                registry.raise_issue(registry.cross_object_issue("signal_controls_on_path", path=f"Signal[id={self.id}].controls", id=self.id, line=rule.line))
             context.simulator.protect_segment(rule.line, rule.start, rule.end, signal, direction=rule.direction)
         return context
 

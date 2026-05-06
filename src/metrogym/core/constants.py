@@ -13,6 +13,7 @@ HELP_OVERLAY_ROWS = [
     "Ctrl+D      speed up animation by +0.5x",
     "Ctrl+A      slow down animation by -0.5x",
     "Ctrl+M      cycle UI mode",
+    "Ctrl+L      cycle log overlay: off / minimalist / trains / signals / collisions",
     "Ctrl+Q      quit visualisation",
     "Ctrl+H      show / hide this help",
 ]
@@ -32,3 +33,5 @@ ROOBERT_BOLD = ROOBERT_DIR / "Roobert-Bold.otf"
 TRAIN_COLLISION_RADIUS = 20
 TRAIN_HEIGHT = 16
 TRAIN_WIDTH = 26
+LOG_OVERLAY_MAX_ROWS = 16
+LOG_OVERLAY_MODES: tuple[str, ...] = ("off", "minimalist", "trains", "signals", "collisions")

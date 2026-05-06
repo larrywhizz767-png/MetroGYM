@@ -31,6 +31,16 @@ def scale_position(position: Position, scale: int | float) -> tuple[int, int]:
 
 
 @beartype
+def transform_position(position: Position, base_scale: int | float, view_scale: int | float, view_offset: Position) -> tuple[int, int]:
+    scaled_x = scale_value(position.x, base_scale)
+    scaled_y = scale_value(position.y, base_scale)
+    return (
+        int(round(scaled_x * float(view_scale) + view_offset.x)),
+        int(round(scaled_y * float(view_scale) + view_offset.y)),
+    )
+
+
+@beartype
 def rgba(color: ColorRGBA | tuple[int, int, int] | tuple[int, int, int, int]) -> tuple[int, int, int, int]:
     if isinstance(color, ColorRGBA):
         return color.pygame()

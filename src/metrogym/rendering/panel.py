@@ -29,6 +29,8 @@ class SimulationPanel:
         self.size = to_position(size)
         self.render_scale = float(render_scale)
         self.window_size = Position(gfx.scale_value(self.size.x, self.render_scale), gfx.scale_value(self.size.y, self.render_scale))
+        self.view_scale = 1.0
+        self.view_offset = Position(0, 0)
         self.objects: list[RuntimeTrain | RuntimeTrafficLight] = []
         self.stations: list[RuntimeStation] = []
         self.track_lines: list[TrackLine] = []
@@ -61,13 +63,25 @@ class SimulationPanel:
     def tick(self) -> None:
         self.tick_count += 1
         for obj in self.objects:
-            obj.update()
+            if isinstance(obj, RuntimeTrafficLight):
+                obj.update()
+        for obj in self.objects:
+            if isinstance(obj, RuntimeTrain):
+                obj.update()
 
     def reset(self) -> None:
         self.tick_count = 0
+        self.view_scale = 1.0
+        self.view_offset = Position(0, 0)
         for obj in self.objects:
             obj.reset()
 
     @beartype
     def draw(self, surface: object, renderer: object, *, ui_mode: UIMode = "minimal") -> None:
         renderer.draw_panel(surface, self, ui_mode=ui_mode)
+
+    def pan(self, dx: int, dy: int) -> None:
+        self.view_offset = self.view_offset.shifted(dx, dy)
+
+    def zoom(self, factor: float) -> None:
+        self.view_scale = max(0.5, min(3.0, self.view_scale * factor))

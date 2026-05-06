@@ -7,6 +7,7 @@ from beartype import beartype
 from metrogym.primitives.line import Line
 from metrogym.primitives.station import Station
 from metrogym.templates.primitive import BaseMetroPrimitive
+from metrogym.validation import validation_registry
 
 
 @beartype
@@ -19,11 +20,12 @@ class Network(BaseMetroPrimitive):
 
     @beartype
     def transform(self, context: object) -> object:
+        registry = validation_registry()
         context.network_count += 1
         if context.network_count > 1:
-            raise ValueError("MetroSystem requires exactly one Network")
+            registry.raise_issue(registry.primitive_issue("Network", "one_network_only", path="Network"))
         for primitive in self.primitives:
             if not isinstance(primitive, (Line, Station)):
-                raise ValueError("Network may only contain Line and Station primitives")
+                registry.raise_issue(registry.primitive_issue("Network", "allowed_child_types", path=f"Network.{type(primitive).__name__}"))
             primitive.fit_transform(context)
         return context
