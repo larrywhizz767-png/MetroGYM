@@ -1,0 +1,76 @@
+system_rules:
+  exactly_one_network:
+    code: metro_system.exactly_one_network
+    level: error
+    message: "MetroSystem requires exactly one Network"
+  network_only_primitives:
+    code: metro_system.network_only_primitives
+    level: error
+    message: "Line and Station primitives must be placed inside Network"
+  at_least_one_line:
+    code: metro_system.at_least_one_line
+    level: error
+    message: "MetroSystem requires at least one line"
+  at_least_one_station:
+    code: metro_system.at_least_one_station
+    level: error
+    message: "MetroSystem requires at least one station"
+  at_least_one_train:
+    code: metro_system.at_least_one_train
+    level: error
+    message: "MetroSystem requires at least one train"
+  unknown_pipeline_step:
+    code: metro_system.unknown_pipeline_step
+    level: error
+    message: "Unknown pipeline step {step_name!r}"
+  invalid_system_param:
+    code: metro_system.invalid_param
+    level: error
+    message: "Invalid parameter {param!r} for MetroSystem"
+primitive_rules:
+  Network:
+    one_network_only:
+      code: network.one_network_only
+      level: error
+      message: "MetroSystem requires exactly one Network"
+    allowed_child_types:
+      code: network.allowed_child_types
+      level: error
+      message: "Network may only contain Line and Station primitives"
+  Line:
+    duplicate_name:
+      code: line.duplicate_name
+      level: error
+      message: "Duplicate line name: {name}"
+  Station:
+    duplicate_name:
+      code: station.duplicate_name
+      level: error
+      message: "Duplicate station name: {name}"
+  Train:
+    duplicate_id:
+      code: train.duplicate_id
+      level: error
+      message: "Duplicate train id: {id}"
+    unknown_line:
+      code: train.unknown_line
+      level: error
+      message: "Train {id!r} references unknown line {line!r}"
+  Signal:
+    duplicate_id:
+      code: signal.duplicate_id
+      level: error
+      message: "Duplicate signal id: {id}"
+cross_object_rules:
+  signal_controls_known_line:
+    code: signal.controls_known_line
+    level: error
+    message: "Signal {id!r} controls unknown line {line!r}"
+  signal_controls_on_path:
+    code: signal.controls_on_path
+    level: error
+    message: "Signal {id!r} controls endpoints that are not on line {line!r}"
+  speed_profile_valid:
+    code: train.speed_profile_valid
+    level: error
+    message: "Train {id!r} has invalid speed profile: {detail}"
