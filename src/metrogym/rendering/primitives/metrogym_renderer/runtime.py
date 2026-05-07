@@ -14,7 +14,7 @@ from metrogym.primitives.signal.runtime import RuntimeTrafficLight
 from metrogym.primitives.station.runtime import RuntimeStation
 from metrogym.primitives.train.runtime import RuntimeTrain
 from metrogym.rendering._utils import gfx
-from metrogym.rendering.primitives.metrogym_renderer.extras.constants import GRID_STEP, HELP_OVERLAY_ROWS
+from metrogym.core.constants import GRID_STEP, HELP_OVERLAY_ROWS
 
 
 @beartype

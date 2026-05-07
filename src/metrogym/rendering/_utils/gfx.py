@@ -9,8 +9,8 @@ import pygame.gfxdraw
 from beartype import beartype
 
 from metrogym.core.colors import ColorRGBA
+from metrogym.core.constants import ROOBERT_BOLD, ROOBERT_MEDIUM, ROOBERT_REGULAR, ROOBERT_SEMIBOLD
 from metrogym.core.coordinates import Position
-from metrogym.rendering.primitives.metrogym_renderer.extras.assets import ROOBERT_BOLD, ROOBERT_MEDIUM, ROOBERT_REGULAR, ROOBERT_SEMIBOLD
 
 
 @beartype

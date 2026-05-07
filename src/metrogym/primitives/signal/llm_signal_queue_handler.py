@@ -211,7 +211,7 @@ class LLMSignalQueueHandler(Signal):
     @staticmethod
     def _provider_for_name(provider_name: str) -> BaseLLMProvider:
         if provider_name == "openai":
-            from metrogym.primitives.signal.providers.openai_provider import OpenAIELLProvider
+            from metrogym.primitives.signal.extras.llm_signal_queue_providers.openai import OpenAIELLProvider
 
             return OpenAIELLProvider()
         raise ValueError(f"Unsupported LLM provider: {provider_name!r}")
