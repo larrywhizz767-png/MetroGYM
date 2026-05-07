@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+"""Public pipeline facade for building and running MetroGYM worlds.
+
+This module exposes :class:`MetroSystem`, the main entry point used by readers of
+MetroGYM. The class intentionally mirrors the high-level feel of a
+scikit-learn-style pipeline: users declare primitives, call :meth:`fit`, and
+then run or step the resulting world.
+"""
+
 from collections.abc import Iterable
 
 from beartype import beartype
@@ -16,6 +24,56 @@ from metrogym.validation import validation_registry
 
 @beartype
 class MetroSystem:
+    """Build, validate, and run a complete metro world.
+
+    ``MetroSystem`` is the main public facade of MetroGYM. You compose a world by
+    passing declarative primitives into :meth:`pipeline`, materialise runtime
+    state with :meth:`fit`, and then either visualise the world with
+    :meth:`run` or advance it headlessly with :meth:`step`.
+
+    Args:
+        name (str, default="Metro Gymulation"):
+            Title shown on the simulation window.
+        tick_ms (int, default=500):
+            Duration of one simulation tick in milliseconds.
+        size (PositionLike, default=(700, 520)):
+            Logical canvas size of the world before renderer scaling.
+        verbose (bool, default=False):
+            Enables verbose runtime behaviour for components that support it.
+        stop_all_on_collision (bool, default=False):
+            If ``True``, any collision triggers an emergency stop for the whole
+            control system.
+        render_scale (int | float, default=2.0):
+            Base rendering scale used when no renderer primitive overrides it.
+
+    Attributes:
+        steps (list[tuple[str, BaseMetroPrimitive]]):
+            Named pipeline steps in user-provided order.
+        context (MetroContext | None):
+            Build context populated after :meth:`fit`.
+        simulator (RuntimeSimulator | None):
+            Runtime simulator created during :meth:`fit`.
+
+    Examples:
+        !!! example "Create and run a small world"
+
+            ```python
+            from metrogym import Color, MetroSystem, train
+            from metrogym.primitives import Line, Network, Station, Train
+
+            system = MetroSystem(name="Starter").pipeline([
+                Network([
+                    Line("Loop", Color.BLUE, [(120, 120), (400, 120), (400, 280), (120, 280), (120, 120)]),
+                    Station("Central", (120, 120)),
+                    Station("East", (400, 120)),
+                ]),
+                Train("A", line="Loop", solver=train.always_proceed()),
+            ])
+
+            system.fit().run()
+            ```
+    """
+
     @beartype
     def __init__(
         self,
@@ -39,6 +97,17 @@ class MetroSystem:
 
     @beartype
     def pipeline(self, steps: Iterable[BaseMetroPrimitive | tuple[str, BaseMetroPrimitive]]) -> "MetroSystem":
+        """Register the declarative primitives that define the world.
+
+        Args:
+            steps (Iterable[BaseMetroPrimitive | tuple[str, BaseMetroPrimitive]]):
+                Primitives or ``(name, primitive)`` pairs. Unnamed primitives are
+                assigned a stable generated step name.
+
+        Returns:
+            MetroSystem:
+                The same system instance, allowing chained construction.
+        """
         self.steps = []
         for index, step in enumerate(steps):
             if isinstance(step, tuple):
@@ -50,6 +119,22 @@ class MetroSystem:
         return self
 
     def fit(self) -> "MetroSystem":
+        """Validate the pipeline and build runtime state.
+
+        The fit step creates a :class:`~metrogym.runtimes.RuntimeSimulator`,
+        sorts primitives by primitive group, applies every primitive to a fresh
+        :class:`~metrogym.context.MetroContext`, validates the resulting world,
+        and auto-links same-line peer trains when requested.
+
+        Returns:
+            MetroSystem:
+                The fitted system.
+
+        Raises:
+            ValueError:
+                Raised through the validation registry when the pipeline shape or
+                built world violates MetroGYM rules.
+        """
         self._validate_pipeline_shape()
         render_scale = self._resolved_render_scale()
         simulator = RuntimeSimulator(
@@ -71,12 +156,29 @@ class MetroSystem:
 
     @beartype
     def run(self, *, block: bool = True) -> None:
+        """Open the pygame visualisation loop.
+
+        Args:
+            block (bool, default=True):
+                If ``True``, run the window loop in the current thread. If
+                ``False``, spawn the loop in a background thread.
+        """
         if self.simulator is None:
             self.fit()
         self.simulator.show(block=block)
 
     @beartype
     def step(self, n: int = 1) -> "MetroSystem":
+        """Advance the fitted world headlessly by a fixed number of ticks.
+
+        Args:
+            n (int, default=1):
+                Number of ticks to execute. Negative values are clamped to zero.
+
+        Returns:
+            MetroSystem:
+                The same fitted system after the requested steps.
+        """
         if self.simulator is None:
             self.fit()
         for _ in range(max(0, n)):
@@ -84,6 +186,12 @@ class MetroSystem:
         return self
 
     def reset(self) -> "MetroSystem":
+        """Reset the runtime world back to tick zero.
+
+        Returns:
+            MetroSystem:
+                The same system instance after resetting the simulator.
+        """
         if self.simulator is None:
             self.fit()
         self.simulator.reset()
@@ -91,6 +199,18 @@ class MetroSystem:
 
     @beartype
     def get_params(self, deep: bool = True) -> dict[str, object]:
+        """Return system parameters in a scikit-learn-like shape.
+
+        Args:
+            deep (bool, default=True):
+                If ``True``, include pipeline primitives and their nested
+                parameters under ``step__param`` keys.
+
+        Returns:
+            dict[str, object]:
+                Parameter mapping describing the system and optionally the whole
+                pipeline tree.
+        """
         params: dict[str, object] = {
             "name": self.name,
             "tick_ms": self.tick_ms,
@@ -108,6 +228,22 @@ class MetroSystem:
 
     @beartype
     def set_params(self, **params: object) -> "MetroSystem":
+        """Update system or nested primitive parameters.
+
+        Args:
+            **params (object):
+                Parameter updates using either direct attribute names or nested
+                ``step__param`` syntax.
+
+        Returns:
+            MetroSystem:
+                The updated system instance.
+
+        Raises:
+            ValueError:
+                Raised through the validation registry when an unknown parameter
+                or pipeline step is referenced.
+        """
         registry = validation_registry()
         step_map = dict(self.steps)
         for key, value in params.items():

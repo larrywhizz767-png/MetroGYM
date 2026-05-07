@@ -1,0 +1,111 @@
+:root {
+    --sklong-accent: #fd706b;
+    --sklong-accent-transparent: rgba(253, 112, 107, 0.16);
+    --md-primary-fg-color: #fff6eb;
+    --md-primary-fg-color--light: #fff6eb;
+    --md-primary-fg-color--dark: #fff6eb;
+    --md-primary-bg-color: #252121;
+    --md-primary-bg-color--light: #252121;
+    --md-primary-bg-color--dark: #252121;
+}
+
+[data-md-color-scheme="default"] {
+    --md-primary-fg-color: #fff6eb;
+    --md-primary-fg-color--light: #fff6eb;
+    --md-primary-fg-color--dark: #fff6eb;
+    --md-primary-bg-color: #252121;
+    --md-primary-bg-color--light: #252121;
+    --md-primary-bg-color--dark: #252121;
+    --md-default-bg-color: #fff6eb;
+    --md-default-bg-color--light: rgba(255, 246, 235, 0.78);
+    --md-default-bg-color--lighter: rgba(255, 246, 235, 0.3);
+    --md-default-fg-color: #252121;
+    --md-typeset-a-color: var(--sklong-accent);
+    --md-accent-fg-color: var(--sklong-accent);
+    --md-accent-fg-color--transparent: var(--sklong-accent-transparent);
+}
+
+[data-md-color-scheme="slate"] {
+    --md-primary-fg-color: #fff6eb;
+    --md-primary-fg-color--light: #fff6eb;
+    --md-primary-fg-color--dark: #fff6eb;
+    --md-primary-bg-color: #232324;
+    --md-primary-bg-color--light: #232324;
+    --md-primary-bg-color--dark: #232324;
+    --md-default-bg-color: #0e0e10;
+    --md-default-fg-color: #fff6eb;
+    --md-typeset-a-color: var(--sklong-accent);
+    --md-accent-fg-color: var(--sklong-accent);
+    --md-accent-fg-color--transparent: var(--sklong-accent-transparent);
+}
+
+[data-md-color-scheme="default"] {
+    color: #252121 !important;
+}
+
+[data-md-color-scheme="default"] .md-button {
+    --md-primary-fg-color: #252121;
+}
+
+[data-md-color-scheme="default"] .md-header__title,
+[data-md-color-scheme="default"] .md-source__repository {
+    color: #252121 !important;
+}
+
+[data-md-color-scheme="slate"] .md-header__title,
+[data-md-color-scheme="slate"] .md-source__repository {
+    color: #fff6eb !important;
+}
+
+[data-md-color-scheme="default"] .md-typeset code {
+    background: rgba(37, 33, 33, 0.06);
+}
+
+[data-md-color-scheme="slate"] .md-typeset code {
+    background: rgba(255, 246, 235, 0.08);
+}
+
+.btn {
+    border: none;
+    padding: 14px 28px;
+    cursor: pointer;
+    display: inline-block;
+    background: #fff6eb;
+    color: #252121;
+}
+
+.btn:hover {
+    background: #fff6eb;
+    color: #252121;
+}
+
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.md-typeset .pub-heading {
+    font-size: 1.35em;
+    font-weight: 700;
+}
+
+.community-embed {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    margin: 1.5rem 0;
+    background: rgba(37, 33, 33, 0.04);
+}
+
+.community-embed__frame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}

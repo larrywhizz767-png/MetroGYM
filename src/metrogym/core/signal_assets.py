@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Public helpers for signal sprite assets."""
+
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -27,6 +29,21 @@ SIGNAL_ASSET_SIZES = {
 @beartype
 @dataclass(frozen=True)
 class SignalAsset:
+    """Describe one signal sprite family.
+
+    Args:
+        state (SignalAssetState):
+            Stable asset state identifier.
+        title (str):
+            Human-readable title for docs and UI.
+        width (int):
+            Base sprite width in pixels.
+        height (int):
+            Base sprite height in pixels.
+        svg_paths (dict[int, Path]):
+            SVG files keyed by integer scale.
+    """
+
     state: SignalAssetState
     title: str
     width: int
@@ -36,12 +53,36 @@ class SignalAsset:
 
 @beartype
 def signal_asset(state: SignalAssetState | str) -> SignalAsset:
+    """Return metadata for a public signal asset state.
+
+    Args:
+        state (SignalAssetState | str):
+            Signal state to resolve.
+
+    Returns:
+        SignalAsset:
+            Asset metadata.
+    """
     asset_state = validate_signal_asset_state(state)
     return signal_asset_manifest()[asset_state]
 
 
 @beartype
 def validate_signal_asset_state(state: SignalAssetState | str) -> SignalAssetState:
+    """Validate and normalise a public signal asset state.
+
+    Args:
+        state (SignalAssetState | str):
+            State to validate.
+
+    Returns:
+        SignalAssetState:
+            Validated signal asset state.
+
+    Raises:
+        ValueError:
+            If the state is unsupported.
+    """
     if state in SIGNAL_ASSET_STATES:
         return state
     states = ", ".join(SIGNAL_ASSET_STATES)
@@ -50,6 +91,12 @@ def validate_signal_asset_state(state: SignalAssetState | str) -> SignalAssetSta
 
 @lru_cache(maxsize=1)
 def signal_asset_manifest() -> dict[SignalAssetState, SignalAsset]:
+    """Return the full signal-asset manifest.
+
+    Returns:
+        dict[SignalAssetState, SignalAsset]:
+            Asset metadata keyed by signal state.
+    """
     width, height = SIGNAL_ASSET_BASE_SIZE
     return {
         state: SignalAsset(
@@ -65,6 +112,18 @@ def signal_asset_manifest() -> dict[SignalAssetState, SignalAsset]:
 
 @beartype
 def load_signal_asset_surface(state: SignalAssetState | str, *, scale: int | float = 1.0) -> object:
+    """Load a pygame surface for a signal asset.
+
+    Args:
+        state (SignalAssetState | str):
+            Signal state to load.
+        scale (int | float, default=1.0):
+            Display scale requested by the renderer.
+
+    Returns:
+        object:
+            Pygame surface containing the scaled signal sprite.
+    """
     asset = signal_asset(state)
     target_width = max(1, round(asset.width * float(scale)))
     target_height = max(1, round(asset.height * float(scale)))

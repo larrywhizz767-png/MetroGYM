@@ -23,5 +23,14 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/metrogym"]
 
+[dependency-groups]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocstrings[python]>=0.25",
+    "mkdocstrings-python>=1.16.10",
+    "pymdown-extensions>=10.14.3",
+    "zensical>=0.0.33",
+]
+
 [tool.uv]
 package = true

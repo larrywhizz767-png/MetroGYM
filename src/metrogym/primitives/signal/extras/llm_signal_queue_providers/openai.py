@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""OpenAI-backed provider for the public LLM queueing API."""
+
 import json
 import os
 from typing import Any
@@ -8,6 +10,13 @@ from metrogym.primitives.signal.llm_signal_queue_handler import BaseLLMProvider,
 
 
 class OpenAIELLProvider(BaseLLMProvider):
+    """Select queued trains with an OpenAI model through ELL.
+
+    The provider loads an ELL planner lazily so ordinary MetroGYM users do not
+    need the optional LLM stack unless they instantiate this provider or the
+    :class:`metrogym.LLMSignalQueueHandler` primitive.
+    """
+
     def __init__(self):
         self._planners: dict[tuple[str, str], Any] = {}
 
@@ -18,6 +27,24 @@ class OpenAIELLProvider(BaseLLMProvider):
         decision_prompt: str,
         payload: dict[str, object],
     ) -> SignalQueuePlan:
+        """Choose the next train to grant through the signal.
+
+        Args:
+            model (str):
+                OpenAI model name passed to ELL.
+            decision_prompt (str):
+                Optional extra planner prompt.
+            payload (dict[str, object]):
+                Structured queue payload.
+
+        Returns:
+            SignalQueuePlan:
+                Structured train-selection result.
+
+        Raises:
+            ValueError:
+                If ELL does not return structured parsed output.
+        """
         response = self._load_planner(model, decision_prompt)(json.dumps(payload, indent=2))
         parsed = getattr(response, "parsed", None)
         if parsed is None:
@@ -46,7 +73,7 @@ class OpenAIELLProvider(BaseLLMProvider):
 
         @ell.complex(model=model, response_format=QueueChoice)
         def choose_train(prompt: str):
-            """placeholder"""
+            """Placeholder docstring replaced with the dynamic planner prompt."""
             return prompt
 
         choose_train.__doc__ = (

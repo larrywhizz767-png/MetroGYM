@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Public path-building helpers for line geometry."""
+
 import math
 from collections.abc import Sequence
 
@@ -11,6 +13,20 @@ from metrogym.core.coordinates import Position, PositionLike, to_position
 
 @beartype
 def build_path(waypoints: Sequence[PositionLike]) -> list[Position]:
+    """Interpolate a dense runtime path from line waypoints.
+
+    Args:
+        waypoints (Sequence[PositionLike]):
+            Ordered line waypoints.
+
+    Returns:
+        list[Position]:
+            Dense runtime path containing interpolated positions.
+
+    Raises:
+        ValueError:
+            If fewer than two waypoints are provided.
+    """
     if len(waypoints) < 2:
         raise ValueError("Need at least two waypoints to build a path.")
     positions = [to_position(point) for point in waypoints]
@@ -22,6 +38,16 @@ def build_path(waypoints: Sequence[PositionLike]) -> list[Position]:
 
 @beartype
 def interpolate(out: list[Position], start: Position, end: Position) -> None:
+    """Append interpolated positions between two endpoints.
+
+    Args:
+        out (list[Position]):
+            Output list receiving interpolated positions.
+        start (Position):
+            Segment start.
+        end (Position):
+            Segment end.
+    """
     dx = end.x - start.x
     dy = end.y - start.y
     dist = math.hypot(dx, dy)

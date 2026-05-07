@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Public helpers for train sprite assets."""
+
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -22,6 +24,21 @@ TRAIN_ASSET_BASE_SIZE = (64, 40)
 @beartype
 @dataclass(frozen=True)
 class TrainAsset:
+    """Describe one train sprite family.
+
+    Args:
+        name (TrainAssetName):
+            Stable asset identifier.
+        title (str):
+            Human-readable title for docs and UI.
+        width (int):
+            Base sprite width in pixels.
+        height (int):
+            Base sprite height in pixels.
+        svg_paths (dict[int, Path]):
+            SVG files keyed by integer scale.
+    """
+
     name: TrainAssetName
     title: str
     width: int
@@ -31,6 +48,20 @@ class TrainAsset:
 
 @beartype
 def validate_train_asset_name(name: TrainAssetName | str) -> TrainAssetName:
+    """Validate and normalise a public train asset name.
+
+    Args:
+        name (TrainAssetName | str):
+            Asset name to validate.
+
+    Returns:
+        TrainAssetName:
+            Validated asset name.
+
+    Raises:
+        ValueError:
+            If the asset name is not supported.
+    """
     if name in TRAIN_ASSET_NAMES:
         return name
     names = ", ".join(TRAIN_ASSET_NAMES)
@@ -39,12 +70,28 @@ def validate_train_asset_name(name: TrainAssetName | str) -> TrainAssetName:
 
 @beartype
 def train_asset(name: TrainAssetName | str = DEFAULT_TRAIN_ASSET) -> TrainAsset:
+    """Return metadata for a public train asset.
+
+    Args:
+        name (TrainAssetName | str, default=DEFAULT_TRAIN_ASSET):
+            Asset name to resolve.
+
+    Returns:
+        TrainAsset:
+            Asset metadata.
+    """
     asset_name = validate_train_asset_name(name)
     return train_asset_manifest()[asset_name]
 
 
 @lru_cache(maxsize=1)
 def train_asset_manifest() -> dict[TrainAssetName, TrainAsset]:
+    """Return the full train-asset manifest.
+
+    Returns:
+        dict[TrainAssetName, TrainAsset]:
+            Asset metadata keyed by asset name.
+    """
     width, height = TRAIN_ASSET_BASE_SIZE
     return {
         name: TrainAsset(
@@ -60,6 +107,18 @@ def train_asset_manifest() -> dict[TrainAssetName, TrainAsset]:
 
 @beartype
 def load_train_asset_surface(name: TrainAssetName | str = DEFAULT_TRAIN_ASSET, *, scale: int | float = 1.0) -> object:
+    """Load a pygame surface for a train asset.
+
+    Args:
+        name (TrainAssetName | str, default=DEFAULT_TRAIN_ASSET):
+            Asset name to load.
+        scale (int | float, default=1.0):
+            Display scale requested by the renderer.
+
+    Returns:
+        object:
+            Pygame surface containing the scaled train sprite.
+    """
     asset = train_asset(name)
     source_scale = _train_display_scale_for(scale)
     target_width = max(1, asset.width * source_scale)

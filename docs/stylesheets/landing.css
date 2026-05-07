@@ -1,0 +1,86 @@
+.tx-container {
+  background: linear-gradient(
+    to bottom,
+    var(--md-primary-fg-color),
+    var(--md-default-bg-color) 100%
+  );
+}
+[data-md-color-scheme="slate"] .tx-container {
+  background: linear-gradient(
+    to bottom,
+    var(--md-primary-fg-color),
+    var(--md-default-bg-color) 100%
+  );
+}
+
+.tx-landing {
+  margin: 0 0.8rem;
+  color: var(--md-primary-bg-color);
+}
+
+.tx-landing__content p a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.tx-landing__content p a:hover {
+  color: darkblue;
+  text-decoration: underline;
+}
+
+.tx-landing .md-button {
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+  color: var(--md-primary-bg-color);
+}
+
+.tx-landing .md-button:hover,
+.tx-landing .md-button:focus {
+  color: var(--md-default-bg-color);
+  background-color: var(--md-default-fg-color);
+  border-color: var(--md-default-fg-color);
+}
+
+.tx-landing h1 {
+  margin-bottom: 1rem;
+  color: currentColor;
+  font-weight: 700;
+}
+
+.md-typeset h2 + h3 {
+  font-size: 1em;
+  margin-top: -0.8em;
+}
+
+.md-typeset figure {
+  display: flex;
+}
+
+.md-content header {
+  display: block;
+}
+
+@media screen and (max-width: 30em) {
+  .tx-landing h1 {
+    font-size: 1.4rem;
+  }
+}
+
+@media screen and (min-width: 60em) {
+  .tx-landing {
+    display: flex;
+    align-items: stretch;
+    height: 85%;
+  }
+
+  .tx-landing__content {
+    align-self: center;
+    max-width: 32rem;
+    margin-top: 3.5rem;
+  }
+
+  .tx-landing__image {
+    order: 1;
+    width: 38rem;
+  }
+}

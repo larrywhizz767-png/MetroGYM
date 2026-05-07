@@ -1,4 +1,9 @@
-"""metrogym — pure Python pygame MetroGYM teaching library."""
+"""MetroGYM public package exports.
+
+Import from this module when writing user-facing MetroGYM code. It re-exports
+core primitives, runtime-facing solver helpers, rendering entry points, and
+asset utilities intended for the public API surface.
+"""
 
 from metrogym.controls import ControlSystem, SignalRule
 from metrogym.core import Color, ColorRGBA, Position
@@ -6,9 +11,8 @@ from metrogym.core.signal_assets import SignalAsset, SignalAssetState, load_sign
 from metrogym.core.train_assets import TrainAsset, TrainAssetName, load_train_asset_surface, train_asset
 from metrogym.events import CollisionEvent
 from metrogym.primitives import ControlRule, LLMSignalQueueHandler, Line, Network, Signal, Station, Train
-from metrogym.primitives.signal import BaseLLMProvider, BaseLLMQueueSignalAgent, OpenAIELLProvider, SignalQueueCandidate, SignalQueuePlan
 from metrogym.primitives.line import build_path
-from metrogym.primitives.signal import TrafficLight
+from metrogym.primitives.signal import BaseLLMProvider, BaseLLMQueueSignalAgent, OpenAIELLProvider, SignalQueueCandidate, SignalQueuePlan, TrafficLight
 from metrogym.rendering import MetroGYMRenderer, SimulationPanel
 from metrogym.solvers import (
     AllOfTrainPolicies,
