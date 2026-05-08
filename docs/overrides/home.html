@@ -391,10 +391,19 @@
         justify-content: flex-end;
     }
 
-    .tx-landing__image lottie-player {
-        aspect-ratio: 1.66;
-        width: 100%;
+    .tx-landing__image img {
+        width: min(100%, 42rem);
+        height: auto;
         margin: auto;
+        display: block;
+        background: transparent;
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.14);
+    }
+
+    body.homepage-page[data-md-color-scheme="slate"] .tx-landing__image img {
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.34);
     }
 
     @media (max-width: 959px) {
@@ -1411,7 +1420,6 @@
 
 <div class="homepage" data-homepage-root>
 
-<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <section class="tx-container">
     <div class="md-grid md-typeset">
         <div class="tx-landing">
@@ -1476,13 +1484,7 @@
                 </div>
             </div>
             <div class="tx-landing__image">
-                <lottie-player
-                        src="https://lottie.host/8155a38e-8a4c-4093-ab71-04f7fd3e9aa5/td6iCnaJib.json"
-                        speed="1"
-                        mode="normal"
-                        style="width: 100%; margin: auto"
-                        direction="1" mode="bounce"
-                        loop autoplay></lottie-player>
+                <img src="{{ 'assets/images/branding/metrogym-homepage-cover.jpg' | url }}" alt="MetroGYM homepage cover" loading="eager">
             </div>
         </div>
     </div>
@@ -1490,7 +1492,7 @@
 
 <div class="podcast-section">
     <h2 class="podcast-heading title-klack-style"><mark>MetroGYM</mark> <span class="podcast-heading__plain">Podcast</span> <mark>Explained</mark></h2>
-    <p class="podcast-subtitle">Generated with NotebookLM</p>
+    <p class="podcast-subtitle">Generated with NotebookLM in four languages</p>
 
     <div class="podcast-inline">
         <div class="bubble-bar podcast-bubbles intro" role="list">
@@ -1501,8 +1503,8 @@
                 <div class="podcast-spotlight" aria-live="polite">
                     <span class="podcast-flag" aria-hidden="true">🇬🇧</span>
                     <div class="podcast-controls">
-                        <audio class="podcast-audio" controls aria-label="Preview audio English">
-                            <source src="assets/audio/sklong_en.wav" type="audio/wav">
+                        <audio class="podcast-audio" controls preload="none" aria-label="MetroGYM podcast in English">
+                            <source src="assets/audio/metrogym-podcast-en.m4a" type="audio/mp4">
                             Your browser does not support the audio element.
                         </audio>
                     </div>
@@ -1516,8 +1518,8 @@
                 <div class="podcast-spotlight" aria-live="polite">
                     <span class="podcast-flag" aria-hidden="true">🇫🇷</span>
                     <div class="podcast-controls">
-                        <audio class="podcast-audio" controls aria-label="Preview audio Français">
-                            <source src="assets/audio/sklong_fr.wav" type="audio/wav">
+                        <audio class="podcast-audio" controls preload="none" aria-label="MetroGYM podcast en français">
+                            <source src="assets/audio/metrogym-podcast-fr.m4a" type="audio/mp4">
                             Your browser does not support the audio element.
                         </audio>
                     </div>
@@ -1531,8 +1533,8 @@
                 <div class="podcast-spotlight" aria-live="polite">
                     <span class="podcast-flag" aria-hidden="true">🇪🇸</span>
                     <div class="podcast-controls">
-                        <audio class="podcast-audio" controls aria-label="Preview audio Español">
-                            <source src="assets/audio/sklong_sp.wav" type="audio/wav">
+                        <audio class="podcast-audio" controls preload="none" aria-label="MetroGYM podcast en español">
+                            <source src="assets/audio/metrogym-podcast-es.m4a" type="audio/mp4">
                             Your browser does not support the audio element.
                         </audio>
                     </div>
@@ -1546,8 +1548,8 @@
                 <div class="podcast-spotlight" aria-live="polite">
                     <span class="podcast-flag" aria-hidden="true">🇨🇳</span>
                     <div class="podcast-controls">
-                        <audio class="podcast-audio" controls aria-label="Preview audio Traditional Chinese">
-                            <source src="assets/audio/sklong_chtrad.wav" type="audio/wav">
+                        <audio class="podcast-audio" controls preload="none" aria-label="MetroGYM podcast in Traditional Chinese">
+                            <source src="assets/audio/metrogym-podcast-zh-hant.m4a" type="audio/mp4">
                             Your browser does not support the audio element.
                         </audio>
                     </div>

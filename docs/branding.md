@@ -4,12 +4,13 @@ icon: lucide/palette
 
 # Branding
 
-`MetroGYM` branding will live here.
+`MetroGYM` is open-source and open-design.
 
-## Figma
-
-> Placeholder: future Figma widget embed goes here.
-
-## Notes
-
-For V1.0 of the documentation, this page intentionally reserves space for the design system rather than inventing assets that do not exist yet.
+<div class="community-embed">
+  <iframe
+    class="community-embed__frame"
+    src="https://embed.figma.com/design/B8LCNdwKyGxjDacGovI4LP/MetroGYM-Branding?node-id=0-1&embed-host=share"
+    title="MetroGYM branding in Figma"
+    allowfullscreen
+  ></iframe>
+</div>
