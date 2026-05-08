@@ -246,7 +246,7 @@ class LLMSignalQueueHandler(Signal):
         id (str):
             Unique signal identifier.
         position (object):
-            Signal position accepted by the base :class:`Signal` primitive.
+            Signal position accepted by the base ``Signal`` primitive.
         controls (ControlRuleLike | Iterable[ControlRuleLike] | None, default=None):
             Protected segments controlled by the signal.
         label (str | None, default=None):

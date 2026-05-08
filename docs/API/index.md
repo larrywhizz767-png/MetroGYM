@@ -21,7 +21,7 @@ Welcome to `MetroGYM`'s API where you will find all references to the available 
 
     The `primitives` are designed to declare metro infrastructure, rolling stock, signalling, and optional queueing components.
 
-    [Jump to primitives](primitives/network-and-infrastructure.md)
+    [Jump to primitives](primitives/network.md)
 
 - __Solvers__
 
@@ -37,6 +37,6 @@ Welcome to `MetroGYM`'s API where you will find all references to the available 
 
     The `rendering` entry points help you display the fitted world and configure the public renderer surface.
 
-    [Jump to primitives](rendering/simulation-panel.md)
+    [Jump to primitives](rendering/renderer-primitive.md)
 
 </div>

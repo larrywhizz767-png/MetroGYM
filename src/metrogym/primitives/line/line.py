@@ -17,8 +17,8 @@ class Line(BaseMetroPrimitive):
     """Declare a named metro line from colour and waypoints.
 
     A line is an infrastructure primitive that is built inside a
-    :class:`~metrogym.primitives.network.Network`. During fitting, the declared
-    waypoints are converted into a full runtime path that trains can follow.
+    ``Network``. During fitting, the declared waypoints are converted into a
+    full runtime path that trains can follow.
 
     Args:
         name (str):
@@ -41,6 +41,23 @@ class Line(BaseMetroPrimitive):
         ValueError:
             Raised through the validation registry when the line name is
             duplicated.
+
+    Examples:
+        !!! example "Highlight the `Line(...)` part of a network"
+
+            ```python hl_lines="6"
+            from metrogym import Color, MetroSystem, train
+            from metrogym.primitives import Line, Network, Station, Train
+
+            system = MetroSystem(name="Line Demo").pipeline([
+                Network([
+                    Line("Loop", Color.BLUE, [(120, 120), (420, 120), (420, 320), (120, 320), (120, 120)]),
+                    Station("Origin", (120, 120)),
+                    Station("East", (420, 120)),
+                ]),
+                Train("A", line="Loop", solver=train.always_hold()),
+            ])
+            ```
     """
 
     primitive_group = "network"

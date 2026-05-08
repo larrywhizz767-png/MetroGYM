@@ -28,7 +28,7 @@ Now that `MetroGYM` is installed and you have seen the first workflow, the next 
 
     ---
 
-    Explore branding material, related projects, frequently asked questions, and the broader ecosystem around `MetroGYM`.
+    Explore branding material, frequently asked questions, and the broader ecosystem around `MetroGYM`.
 
     [Visit the community hub](../community-hub.md)
 

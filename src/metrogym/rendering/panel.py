@@ -41,8 +41,8 @@ class SimulationPanel:
 
     ``SimulationPanel`` stores runtime objects, stations, track lines, and the
     current camera transform. Most users interact with it indirectly through
-    :class:`metrogym.MetroSystem`, but it remains public for advanced rendering
-    and teaching scenarios.
+    ``metrogym.MetroSystem``, but it remains public for advanced rendering and
+    teaching scenarios.
 
     Args:
         size (PositionLike, default=(700, 520)):
@@ -99,7 +99,7 @@ class SimulationPanel:
 
     @beartype
     def addTrackLine(self, waypoints: Sequence[PositionLike], color: ColorRGBA, name: str) -> None:
-        """Backward-style alias for :meth:`add_track_line`."""
+        """Backward-style alias for ``add_track_line()``."""
         self.add_track_line(waypoints, color, name)
 
     @beartype
@@ -125,7 +125,7 @@ class SimulationPanel:
 
     @beartype
     def addObject(self, obj: RuntimeTrain | RuntimeTrafficLight) -> None:
-        """Backward-style alias for :meth:`add_object`."""
+        """Backward-style alias for ``add_object()``."""
         self.add_object(obj)
 
     @beartype
@@ -140,7 +140,7 @@ class SimulationPanel:
 
     @beartype
     def addStation(self, station: RuntimeStation) -> None:
-        """Backward-style alias for :meth:`add_station`."""
+        """Backward-style alias for ``add_station()``."""
         self.add_station(station)
 
     def tick(self) -> None:

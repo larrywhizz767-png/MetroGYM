@@ -10,7 +10,7 @@ from beartype import beartype
 @beartype
 @dataclass
 class MetroContext:
-    """Accumulate validated world state during :meth:`MetroSystem.fit`.
+    """Accumulate validated world state during ``MetroSystem.fit()``.
 
     The context is passed from primitive to primitive while the declarative
     pipeline is materialised into runtime objects. Public users usually inspect

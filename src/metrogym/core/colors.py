@@ -2,7 +2,7 @@ from __future__ import annotations
 
 """Public color helpers used throughout MetroGYM.
 
-This module exposes :class:`ColorRGBA` for explicit RGBA values and a callable
+This module exposes ``ColorRGBA`` for explicit RGBA values and a callable
 ``Color`` factory with a small built-in palette. The palette is meant to make
 teaching examples concise while still allowing fully custom colours.
 """
@@ -19,8 +19,8 @@ class ColorRGBA:
     """Represent an RGBA colour with 8-bit channels.
 
     MetroGYM uses explicit colour objects instead of raw tuples so that examples
-    remain readable and helper methods such as :meth:`darker` and
-    :meth:`brighter` stay discoverable.
+    remain readable and helper methods such as ``darker()`` and
+    ``brighter()`` stay discoverable.
 
     Args:
         r (int):
@@ -142,7 +142,7 @@ class _ColorFactory:
 
     The exported ``Color`` object is an instance of this class. Users can either
     reference named palette entries such as ``Color.BLUE`` or call ``Color(...)``
-    to build a custom :class:`ColorRGBA`.
+    to build a custom ``ColorRGBA``.
     """
 
     RED = ColorRGBA(220, 36, 31)

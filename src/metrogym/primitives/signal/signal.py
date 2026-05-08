@@ -19,9 +19,9 @@ class Signal(BaseMetroPrimitive):
     """Declare a traffic signal and its protected line segments.
 
     Signals can run on a simple internal timer or delegate decisions to a
-    signal solver. Protected segments are described with :class:`ControlRule`
-    values so that trains cannot enter conflicting sections while the signal is
-    red or granted elsewhere.
+    signal solver. Protected segments are described with ``ControlRule`` values
+    so that trains cannot enter conflicting sections while the signal is red or
+    granted elsewhere.
 
     Args:
         id (str):
@@ -60,6 +60,23 @@ class Signal(BaseMetroPrimitive):
             Raised through the validation registry when the signal id is
             duplicated, a referenced line does not exist, or a control endpoint
             does not lie on the protected line path.
+
+    Examples:
+        Add a signal as its own top-level pipeline step after the network.
+
+        ```python hl_lines="9"
+        from metrogym import Color, MetroSystem, train
+        from metrogym.primitives import ControlRule, Line, Network, Signal, Station, Train
+
+        system = MetroSystem(name="Signal Demo").pipeline([
+            Network([
+                Line("Loop", Color.BLUE, [(120, 120), (420, 120), (420, 320), (120, 320), (120, 120)]),
+                Station("Origin", (120, 120)),
+            ]),
+            Signal("S1", (420, 120), controls=ControlRule("Loop", (420, 120), (420, 320))),
+            Train("A", line="Loop", solver=train.respect_signals()),
+        ])
+        ```
     """
 
     primitive_group = "control"

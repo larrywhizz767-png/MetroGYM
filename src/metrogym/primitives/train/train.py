@@ -32,7 +32,8 @@ class Train(BaseMetroPrimitive):
             If ``True``, auto-link this train with same-line peers for collision
             checks.
         asset (TrainAssetName | str, default=DEFAULT_TRAIN_ASSET):
-            Train sprite asset name.
+            Train sprite asset name. Supported values are ``"metro_nose"``,
+            ``"maintenance"``, ``"city_tram"``, and ``"bullet_metro"``.
         solver (SolverLike | None, default=None):
             Optional train solver or train agent.
         speed (int | float, default=1):
@@ -60,6 +61,22 @@ class Train(BaseMetroPrimitive):
         ValueError:
             Raised through the validation registry when the train id is
             duplicated, the line is unknown, or speed is negative.
+
+    Examples:
+        Add a train as its own top-level pipeline step after the network.
+
+        ```python hl_lines="9"
+        from metrogym import Color, MetroSystem, train
+        from metrogym.primitives import Line, Network, Station, Train
+
+        system = MetroSystem(name="Train Demo").pipeline([
+            Network([
+                Line("Loop", Color.BLUE, [(120, 120), (420, 120), (420, 320), (120, 320), (120, 120)]),
+                Station("Origin", (120, 120)),
+            ]),
+            Train("A", line="Loop", solver=train.always_proceed()),
+        ])
+        ```
     """
 
     primitive_group = "rolling_stock"

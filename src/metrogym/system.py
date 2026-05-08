@@ -2,13 +2,16 @@ from __future__ import annotations
 
 """Public pipeline facade for building and running MetroGYM worlds.
 
-This module exposes :class:`MetroSystem`, the main entry point used by readers of
+This module exposes ``MetroSystem``, the main entry point used by readers of
 MetroGYM. The class intentionally mirrors the high-level feel of a
-scikit-learn-style pipeline: users declare primitives, call :meth:`fit`, and
-then run or step the resulting world.
+scikit-learn-style pipeline: users declare primitives, call ``fit()``, and then
+run or step the resulting world.
 """
 
 from collections.abc import Iterable
+from pathlib import Path
+import pickle
+from typing import ClassVar
 
 from beartype import beartype
 
@@ -24,12 +27,12 @@ from metrogym.validation import validation_registry
 
 @beartype
 class MetroSystem:
-    """Build, validate, and run a complete metro world.
+    """Build, validate, run, and persist a complete metro world.
 
     ``MetroSystem`` is the main public facade of MetroGYM. You compose a world by
-    passing declarative primitives into :meth:`pipeline`, materialise runtime
-    state with :meth:`fit`, and then either visualise the world with
-    :meth:`run` or advance it headlessly with :meth:`step`.
+    passing declarative primitives into ``pipeline()``, materialise runtime
+    state with ``fit()``, and then either visualise the world with ``run()`` or
+    advance it headlessly with ``step()``.
 
     Args:
         name (str, default="Metro Gymulation"):
@@ -50,9 +53,15 @@ class MetroSystem:
         steps (list[tuple[str, BaseMetroPrimitive]]):
             Named pipeline steps in user-provided order.
         context (MetroContext | None):
-            Build context populated after :meth:`fit`.
+            Build context populated after ``fit()``.
         simulator (RuntimeSimulator | None):
-            Runtime simulator created during :meth:`fit`.
+            Runtime simulator created during ``fit()``.
+
+    Notes:
+        ``save()`` and ``load()`` persist the declarative pipeline and system
+        configuration, not the transient fitted runtime state. Loading always
+        returns an unfitted system that can be re-run, stepped, or extended with
+        more primitives before calling ``fit()`` again.
 
     Examples:
         !!! example "Create and run a small world"
@@ -95,6 +104,8 @@ class MetroSystem:
         self.context: MetroContext | None = None
         self.simulator: RuntimeSimulator | None = None
 
+    SERIALIZATION_VERSION: ClassVar[int] = 1
+
     @beartype
     def pipeline(self, steps: Iterable[BaseMetroPrimitive | tuple[str, BaseMetroPrimitive]]) -> "MetroSystem":
         """Register the declarative primitives that define the world.
@@ -121,10 +132,10 @@ class MetroSystem:
     def fit(self) -> "MetroSystem":
         """Validate the pipeline and build runtime state.
 
-        The fit step creates a :class:`~metrogym.runtimes.RuntimeSimulator`,
-        sorts primitives by primitive group, applies every primitive to a fresh
-        :class:`~metrogym.context.MetroContext`, validates the resulting world,
-        and auto-links same-line peer trains when requested.
+        The fit step creates a ``RuntimeSimulator``, sorts primitives by
+        primitive group, applies every primitive to a fresh ``MetroContext``,
+        validates the resulting world, and auto-links same-line peer trains when
+        requested.
 
         Returns:
             MetroSystem:
@@ -198,6 +209,71 @@ class MetroSystem:
         return self
 
     @beartype
+    def save(self, file_path: str | Path) -> Path:
+        """Persist the declarative system configuration to a pickle file.
+
+        The saved payload contains only public system configuration and pipeline
+        primitives. Runtime-only state produced by ``fit()``, such as the active
+        simulator, current tick, or built context, is intentionally excluded.
+
+        Args:
+            file_path (str | Path):
+                Destination ``.pkl`` path.
+
+        Returns:
+            Path:
+                Resolved path written to disk.
+
+        Raises:
+            ValueError:
+                If the target path does not end with ``.pkl`` or ``.pickle``.
+            TypeError:
+                If the pipeline contains objects that Python's ``pickle`` module
+                cannot serialise.
+        """
+        resolved_path = Path(file_path).expanduser().resolve()
+        if resolved_path.suffix not in {".pkl", ".pickle"}:
+            raise ValueError("MetroSystem.save() expects a '.pkl' or '.pickle' file path.")
+        resolved_path.parent.mkdir(parents=True, exist_ok=True)
+        payload = self._serialization_payload()
+        try:
+            with resolved_path.open("wb") as output_file:
+                pickle.dump(payload, output_file, protocol=pickle.HIGHEST_PROTOCOL)
+        except OSError as exc:
+            raise ValueError(f"MetroSystem.save() could not write to {resolved_path}.") from exc
+        except (pickle.PickleError, AttributeError, TypeError) as exc:
+            raise TypeError(
+                "MetroSystem.save() could not serialise the pipeline. "
+                "Ensure every primitive and solver is pickle-compatible."
+            ) from exc
+        return resolved_path
+
+    @classmethod
+    @beartype
+    def load(cls, file_path: str | Path) -> "MetroSystem":
+        """Load a previously saved declarative system configuration.
+
+        Args:
+            file_path (str | Path):
+                Path previously written by ``save()``.
+
+        Returns:
+            MetroSystem:
+                Unfitted system rebuilt from the saved declarative pipeline.
+
+        Raises:
+            ValueError:
+                If the file does not contain a supported MetroGYM payload.
+        """
+        resolved_path = Path(file_path).expanduser().resolve()
+        try:
+            with resolved_path.open("rb") as input_file:
+                payload = pickle.load(input_file)
+        except (pickle.PickleError, EOFError, AttributeError, ValueError) as exc:
+            raise ValueError(f"MetroSystem.load() could not read a MetroGYM pipeline from {resolved_path}.") from exc
+        return cls._from_serialization_payload(payload)
+
+    @beartype
     def get_params(self, deep: bool = True) -> dict[str, object]:
         """Return system parameters in a scikit-learn-like shape.
 
@@ -263,6 +339,51 @@ class MetroSystem:
             self.steps,
             key=lambda item: PRIMITIVE_GROUP_ORDER.get(item[1].primitive_group, DEFAULT_PRIMITIVE_GROUP_ORDER),
         )
+
+    def _serialization_payload(self) -> dict[str, object]:
+        return {
+            "format": "metrogym.metro_system",
+            "version": self.SERIALIZATION_VERSION,
+            "system": {
+                "name": self.name,
+                "tick_ms": self.tick_ms,
+                "size": self.size,
+                "verbose": self.verbose,
+                "stop_all_on_collision": self.stop_all_on_collision,
+                "render_scale": self.render_scale,
+            },
+            "steps": list(self.steps),
+        }
+
+    @classmethod
+    def _from_serialization_payload(cls, payload: object) -> "MetroSystem":
+        if not isinstance(payload, dict):
+            raise ValueError("MetroSystem.load() expected a dictionary payload.")
+        if payload.get("format") != "metrogym.metro_system":
+            raise ValueError("MetroSystem.load() received an unsupported payload format.")
+        if payload.get("version") != cls.SERIALIZATION_VERSION:
+            raise ValueError(
+                f"MetroSystem.load() supports version {cls.SERIALIZATION_VERSION}, "
+                f"got {payload.get('version')!r}."
+            )
+        system_config = payload.get("system")
+        steps = payload.get("steps")
+        if not isinstance(system_config, dict):
+            raise ValueError("MetroSystem.load() expected a 'system' mapping in the payload.")
+        if not isinstance(steps, list):
+            raise ValueError("MetroSystem.load() expected a 'steps' list in the payload.")
+        system = cls(
+            name=system_config["name"],
+            tick_ms=system_config["tick_ms"],
+            size=system_config["size"],
+            verbose=system_config["verbose"],
+            stop_all_on_collision=system_config["stop_all_on_collision"],
+            render_scale=system_config["render_scale"],
+        )
+        system.pipeline(steps)
+        system.context = None
+        system.simulator = None
+        return system
 
     def _resolved_render_scale(self) -> float:
         scale = self.render_scale

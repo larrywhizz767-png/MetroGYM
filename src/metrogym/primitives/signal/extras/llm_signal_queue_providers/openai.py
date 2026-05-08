@@ -14,7 +14,7 @@ class OpenAIELLProvider(BaseLLMProvider):
 
     The provider loads an ELL planner lazily so ordinary MetroGYM users do not
     need the optional LLM stack unless they instantiate this provider or the
-    :class:`metrogym.LLMSignalQueueHandler` primitive.
+    ``metrogym.LLMSignalQueueHandler`` primitive.
     """
 
     def __init__(self):

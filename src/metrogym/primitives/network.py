@@ -18,7 +18,7 @@ class Network(BaseMetroPrimitive):
 
     A MetroGYM world must contain exactly one ``Network`` primitive. It acts as
     the container for all infrastructure declarations, currently limited to
-    :class:`Line` and :class:`Station` primitives.
+    ``Line`` and ``Station`` primitives.
 
     Args:
         primitives (Iterable[Line | Station]):
@@ -34,16 +34,19 @@ class Network(BaseMetroPrimitive):
             declared or when a child primitive is not a line or station.
 
     Examples:
-        !!! example "Build a network"
+        !!! example "Place `Network(...)` inside the pipeline"
 
-            ```python
-            from metrogym import Color
-            from metrogym.primitives import Line, Network, Station
+            ```python hl_lines="5-10"
+            from metrogym import Color, MetroSystem, train
+            from metrogym.primitives import Line, Network, Station, Train
 
-            network = Network([
-                Line("Loop", Color.BLUE, [(120, 120), (420, 120), (420, 300), (120, 300), (120, 120)]),
-                Station("Central", (120, 120)),
-                Station("East", (420, 120)),
+            system = MetroSystem(name="Network Demo").pipeline([
+                Network([
+                    Line("Loop", Color.BLUE, [(120, 120), (420, 120), (420, 300), (120, 300), (120, 120)]),
+                    Station("Central", (120, 120)),
+                    Station("East", (420, 120)),
+                ]),
+                Train("A", line="Loop", solver=train.always_hold()),
             ])
             ```
     """

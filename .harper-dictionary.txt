@@ -1,0 +1,10 @@
+Sklong
+Zensical
+MkDocs
+mkdocstrings
+nav
+mixins
+scikit
+Lucide
+MathJax
+uv

@@ -21,6 +21,7 @@ nav = [
     { "Tutorials" = [
         { "Overview" = "tutorials/overview.md" },
         { "Building worlds" = "tutorials/building-worlds.md" },
+        { "Save & Load Worlds" = "tutorials/saving-and-loading-worlds.md" },
         { "Controlling trains" = "tutorials/controlling-trains.md" },
         { "Managing signals" = "tutorials/managing-signals.md" },
         { "Advanced scenarios" = "tutorials/advanced-scenarios.md" },
@@ -30,12 +31,11 @@ nav = [
         { "Foundations" = [
             { "Metro system" = "API/foundations/metro-system.md" },
             { "Colors and positions" = "API/foundations/colors-and-positions.md" },
-            { "Assets and UI modes" = "API/foundations/assets-and-ui-modes.md" },
         ]},
         { "Primitives" = [
-            { "Network and infrastructure" = "API/primitives/network-and-infrastructure.md" },
-            { "Trains and signals" = "API/primitives/trains-and-signals.md" },
-            { "LLM queueing" = "API/primitives/llm-queueing.md" },
+            { "Network" = "API/primitives/network.md" },
+            { "Trains" = "API/primitives/trains.md" },
+            { "Signals" = "API/primitives/signals.md" },
         ]},
         { "Solvers" = [
             { "World views and decisions" = "API/solvers/world-views-and-decisions.md" },
@@ -43,14 +43,12 @@ nav = [
             { "Signal solvers" = "API/solvers/signal-solvers.md" },
         ]},
         { "Rendering" = [
-            { "Simulation panel" = "API/rendering/simulation-panel.md" },
-            { "Renderer primitive" = "API/rendering/renderer-primitive.md" },
+            { "Renderers" = "API/rendering/renderer-primitive.md" },
         ]},
     ]},
     { "Community Hub" = [
         { "Overview" = "community-hub.md" },
         { "Branding" = "branding.md" },
-        { "Projects" = "related-projects.md" },
         { "Developers" = "developers.md" },
         { "FAQ" = "faq.md" },
     ]},

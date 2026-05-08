@@ -36,6 +36,23 @@ class Station(BaseMetroPrimitive):
         ValueError:
             Raised through the validation registry when the station name is
             duplicated.
+
+    Examples:
+        !!! example "Highlight the `Station(...)` entries in the pipeline"
+
+            ```python hl_lines="7-8"
+            from metrogym import Color, MetroSystem, train
+            from metrogym.primitives import Line, Network, Station, Train
+
+            system = MetroSystem(name="Station Demo").pipeline([
+                Network([
+                    Line("Loop", Color.BLUE, [(120, 120), (420, 120), (420, 320), (120, 320), (120, 120)]),
+                    Station("Origin", (120, 120)),
+                    Station("East", (420, 120)),
+                ]),
+                Train("A", line="Loop", solver=train.always_hold()),
+            ])
+            ```
     """
 
     primitive_group = "network"

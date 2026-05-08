@@ -265,7 +265,7 @@ class WorldView:
 @beartype
 @dataclass(frozen=True)
 class TrainObservation:
-    """Train-focused view over a :class:`WorldView` snapshot.
+    """Train-focused view over a ``WorldView`` snapshot.
 
     Args:
         world (WorldView):
@@ -353,7 +353,7 @@ class TrainSignalView:
 @beartype
 @dataclass(frozen=True)
 class SignalObservation:
-    """Signal-focused view over a :class:`WorldView` snapshot.
+    """Signal-focused view over a ``WorldView`` snapshot.
 
     Args:
         world (WorldView):
@@ -498,7 +498,7 @@ SolverLike: TypeAlias = TrainSolver | SignalSolver
 class TrainAgent:
     """Base class for custom train agents.
 
-    Subclass :class:`TrainAgent` and override :meth:`act` to build reusable
+    Subclass ``TrainAgent`` and override ``act()`` to build reusable
     teaching agents that can inspect typed observations and return typed
     decisions.
     """
@@ -534,7 +534,7 @@ class TrainAgent:
         return train.proceed()
 
     def __call__(self, observation: TrainObservation) -> TrainDecision:
-        """Delegate callable use to :meth:`act`."""
+        """Delegate callable use to ``act()``."""
         return self.act(observation)
 
 
@@ -556,7 +556,7 @@ class SignalAgent:
         return signal.auto()
 
     def __call__(self, observation: SignalObservation) -> SignalDecision:
-        """Delegate callable use to :meth:`act`."""
+        """Delegate callable use to ``act()``."""
         return self.act(observation)
 
 
@@ -847,7 +847,7 @@ class _TrainNamespace:
         return TrainDecision(TrainVerb.REVERSE, reason=reason, target_speed=_coerce_speed(target_speed))
 
     def coast(self, reason: str | None = None) -> TrainDecision:
-        """Alias for :meth:`proceed`."""
+        """Alias for ``proceed()``."""
         return self.proceed(reason=reason)
 
     def set_speed(self, speed: int | float, reason: str | None = None) -> TrainDecision:

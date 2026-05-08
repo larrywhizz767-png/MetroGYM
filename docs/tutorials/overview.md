@@ -19,6 +19,14 @@ If you are new to the library, start with world construction before moving into 
 
     [Read the tutorial](building-worlds.md)
 
+- __Saving and loading worlds__
+
+    ---
+
+    Persist a declarative `MetroSystem` pipeline, load it later, and extend it before fitting again.
+
+    [Read the tutorial](saving-and-loading-worlds.md)
+
 - __Controlling trains__
 
     ---

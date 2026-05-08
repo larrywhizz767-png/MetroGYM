@@ -67,7 +67,7 @@ class Position:
 
         Args:
             other (object):
-                Another position-like value accepted by :func:`to_position`.
+                Another position-like value accepted by ``to_position()``.
 
         Returns:
             float:
@@ -115,11 +115,11 @@ PositionLike: TypeAlias = Position | tuple[int, int]
 
 @beartype
 def to_position(point: PositionLike) -> Position:
-    """Normalise a point-like value to :class:`Position`.
+    """Normalise a point-like value to ``Position``.
 
     Args:
         point (PositionLike):
-            Existing :class:`Position` or ``(x, y)`` tuple.
+            Existing ``Position`` or ``(x, y)`` tuple.
 
     Returns:
         Position:
