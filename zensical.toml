@@ -16,7 +16,6 @@ nav = [
         { "Get started" = "getting-started/index.md" },
         { "First Example" = "getting-started/first-example.md" },
         { "Related Work" = "getting-started/related-work.md" },
-        { "NotebookLM Prompt" = "getting-started/notebooklm-prompt.md" },
         { "What's Next" = "getting-started/whats-next.md" },
     ]},
     { "Tutorials" = [
