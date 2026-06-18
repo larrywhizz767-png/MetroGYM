@@ -26,6 +26,22 @@ nav = [
         { "Managing signals" = "tutorials/managing-signals.md" },
         { "Advanced scenarios" = "tutorials/advanced-scenarios.md" },
     ]},
+    { "Puzzles" = [
+        { "Overview" = "puzzles/index.md" },
+        { "Basic" = [
+            { "01 · Single-line route" = "puzzles/basic/01-single-line-route.md" },
+            { "02 · Fewest stops" = "puzzles/basic/02-fewest-stops.md" },
+        ]},
+        { "Medium" = [
+            { "01 · Closed-station diversion" = "puzzles/medium/01-closed-station-diversion.md" },
+            { "02 · Blocked-track diversion" = "puzzles/medium/02-blocked-track-diversion.md" },
+        ]},
+        { "Advanced" = [
+            { "01 · Fastest route" = "puzzles/advanced/01-fastest-route.md" },
+            { "02 · Transfer-aware routing" = "puzzles/advanced/02-transfer-aware-routing.md" },
+            { "03 · Larger-city BFS" = "puzzles/advanced/03-larger-city-bfs.md" },
+        ]},
+    ]},
     { "API" = [
         "API/index.md",
         { "Foundations" = [

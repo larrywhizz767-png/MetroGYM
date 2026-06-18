@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from metrogym import Color, MetroSystem, SignalObservation, signal, train
+from metrogym import Color, MetroSystem, signal, train
 from metrogym.primitives import ControlRule, Line, Network, Signal, Station, Train
 
 
@@ -20,13 +20,9 @@ def build_system(*, tick_ms: int = 350, render_scale: int | float = 2) -> MetroS
             (560, 210),
             label="Gate",
             controls=ControlRule("Pulse Loop", (560, 180), (560, 340)),
-            solver=lambda obs: signal.deny() if _is_red_phase(obs) else signal.grant(),
+            solver=signal.pulse(green_ticks=4, red_ticks=4),
         ),
     ])
-
-
-def _is_red_phase(observation: SignalObservation) -> bool:
-    return observation.tick % 8 in {4, 5, 6, 7}
 
 
 def main() -> None:
