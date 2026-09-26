@@ -20,6 +20,7 @@ nav = [
     ]},
     { "Tutorials" = [
         { "Overview" = "tutorials/overview.md" },
+        { "Understanding Pipelines" = "tutorials/understanding-pipelines.md" },
         { "Building worlds" = "tutorials/building-worlds.md" },
         { "Save & Load Worlds" = "tutorials/saving-and-loading-worlds.md" },
         { "Controlling trains" = "tutorials/controlling-trains.md" },
@@ -29,12 +30,12 @@ nav = [
     { "Puzzles" = [
         { "Overview" = "puzzles/index.md" },
         { "Basic" = [
-            { "01 · Single-line route" = "puzzles/basic/01-single-line-route.md" },
-            { "02 · Fewest stops" = "puzzles/basic/02-fewest-stops.md" },
+            { "01 · Linear Search" = "puzzles/basic/01-linear-search.md" },
+            { "02 · Binary Search" = "puzzles/basic/02-binary-search.md" },
         ]},
         { "Medium" = [
-            { "01 · Closed-station diversion" = "puzzles/medium/01-closed-station-diversion.md" },
-            { "02 · Blocked-track diversion" = "puzzles/medium/02-blocked-track-diversion.md" },
+            { "01 · Depth-first search" = "puzzles/medium/01-depth-first-search.md" },
+            { "02 · Breadth-first search" = "puzzles/medium/02-breadth-first-search.md" },
         ]},
         { "Advanced" = [
             { "01 · Fastest route" = "puzzles/advanced/01-fastest-route.md" },

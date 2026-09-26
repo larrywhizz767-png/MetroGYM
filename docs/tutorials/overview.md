@@ -11,6 +11,14 @@ If you are new to the library, start with world construction before moving into 
 
 <div class="grid cards" markdown>
 
+- __Understanding pipelines__
+
+    ---
+
+    Learn why MetroGYM uses a declarative pipeline approach instead of an imperative one.
+
+    [Read the tutorial](understanding-pipelines.md)
+
 - __Building worlds__
 
     ---

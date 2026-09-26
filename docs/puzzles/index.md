@@ -13,53 +13,53 @@ More precisely, this section is intended to help you (i) identify the puzzle obj
 
 <div class="grid cards" markdown>
 
-- __Basic 01 — Single-line route__
+- __Basic 01 — Linear Search__
 
     ---
 
-    Slice one ordered line into the exact route from `Depot` to `Museum`.
+    Search unsorted station data from left to right until you find `Museum`.
 
-    - Concept: route slicing
-    - Goal: return all visited stations in order
-    - Output: `Single-line route: Depot -> School -> Library -> Museum`
+    - Concept: [linear search](https://www.bbc.co.uk/bitesize/guides/zjdkw6f/revision/3)
+    - Goal: record every station inspected
+    - Output: `Linear search checks: Harbour -> School -> Library -> Depot -> Museum`
 
-    [Open puzzle](basic/01-single-line-route.md)
+    [Open puzzle](basic/01-linear-search.md)
 
-- __Basic 02 — Fewest stops__
+- __Basic 02 — Binary Search__
 
     ---
 
-    Use [breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) to reach `Airport` from `West` in the minimum number of hops.
+    Search an alphabetically ordered station list by checking its middle and eliminating half of the remaining data.
+
+    - Concept: [binary search](https://www.bbc.co.uk/bitesize/guides/zjdkw6f/revision/2)
+    - Goal: record each middle station inspected
+    - Output: `Binary search checks: Garden -> School -> Museum`
+
+    [Open puzzle](basic/02-binary-search.md)
+
+- __Medium 01 — Depth-first search__
+
+    ---
+
+    Explore one branch as far as possible before backtracking to another route.
+
+    - Concept: iterative or recursive [DFS](https://en.wikipedia.org/wiki/Depth-first_search)
+    - Goal: find `Harbour` from `Depot` and return the path
+    - Output: `DFS path: Depot -> Market -> Museum -> Garden -> Harbour`
+
+    [Open puzzle](medium/01-depth-first-search.md)
+
+- __Medium 02 — Breadth-first search__
+
+    ---
+
+    Explore the graph level by level and return the path with the fewest stops.
 
     - Concept: [BFS](https://en.wikipedia.org/wiki/Breadth-first_search)
-    - Goal: minimise stop count
-    - Output: `Fewest-stops route: West -> Central -> Airport (2 stops)`
+    - Goal: find the shortest path from `Stadium` to `Harbour`
+    - Output: `Shortest BFS path: Stadium -> Junction -> Museum -> Harbour`
 
-    [Open puzzle](basic/02-fewest-stops.md)
-
-- __Medium 01 — Closed-station diversion__
-
-    ---
-
-    Re-plan around a closed station while keeping the fewest-stop objective.
-
-    - Concept: [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) with forbidden nodes
-    - Goal: skip `Museum`
-    - Output: `Diversion route: Depot -> Market -> College -> Garden -> Harbour`
-
-    [Open puzzle](medium/01-closed-station-diversion.md)
-
-- __Medium 02 — Blocked-track diversion__
-
-    ---
-
-    Keep all stations open, but reject one blocked direct connection.
-
-    - Concept: [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) with forbidden edges
-    - Goal: skip `Museum - Harbour`
-    - Output: `Diversion route: Stadium -> Junction -> Riverside -> Tech Park -> Harbour`
-
-    [Open puzzle](medium/02-blocked-track-diversion.md)
+    [Open puzzle](medium/02-breadth-first-search.md)
 
 - __Advanced 01 — Fastest route__
 
@@ -110,4 +110,3 @@ uv run python examples/puzzles/Advanced/01/world.py
 uv run python examples/puzzles/Advanced/02/world.py
 uv run python examples/puzzles/Advanced/03/world.py
 ```
-
