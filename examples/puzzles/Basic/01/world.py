@@ -17,22 +17,20 @@ SOLVER_SPEC.loader.exec_module(solver_module)
 solve_puzzle = solver_module.solve_puzzle
 
 STATIONS = {
-    "Depot": (100, 220),
+    "Harbour": (100, 220),
     "School": (220, 220),
     "Library": (340, 220),
-    "Museum": (460, 220),
-    "Harbour": (580, 220),
+    "Depot": (460, 220),
+    "Museum": (580, 220),
 }
-LINE_ORDER = ["Depot", "School", "Library", "Museum", "Harbour"]
-START = "Depot"
-GOAL = "Museum"
+STATION_DATA = ["Harbour", "School", "Library", "Depot", "Museum"]
+TARGET = "Museum"
 
 
-class RouteReplaySolver(TrainAgent):
-    """Animate the route returned by the solver.
+class SearchReplaySolver(TrainAgent):
+    """Animate the stations inspected by the search.
 
-    The world passes in a station-by-station route and this class moves the
-    train through that answer.
+    The highlighted line shows each value examined by the solver in order.
     """
 
     def __init__(self, route: list[str], *, dwell_ticks: int = 2):
@@ -56,32 +54,33 @@ class RouteReplaySolver(TrainAgent):
             self._remaining_hold = self.dwell_ticks
             self._next_stop_index += 1
             return train.hold(reason=f"reached {stop_name}")
-        return train.proceed_at(1.0, reason="following single-line route")
+        return train.proceed_at(1.0, reason="following linear-search checks")
 
 
 def build_system(*, tick_ms: int = 400, render_scale: int | float = 2) -> MetroSystem:
-    """Build the teaching world for puzzle 01.
+    """Build the teaching world for the linear-search puzzle.
 
     The puzzle inputs live here in `world.py`, while `solver.py` only contains
-    the route-finding logic students edit.
+    the search logic students edit.
     """
-    route = solve_puzzle(LINE_ORDER, START, GOAL)
-    solver = RouteReplaySolver(route)
-    return MetroSystem(name="Puzzle Basic 1: Single Line Route", tick_ms=tick_ms, render_scale=render_scale).pipeline([
+    inspected_stations = solve_puzzle(STATION_DATA, TARGET)
+    solver = SearchReplaySolver(inspected_stations)
+    return MetroSystem(name="Puzzle Basic 1: Linear Search", tick_ms=tick_ms, render_scale=render_scale).pipeline([
         Network([
-            Line("School Shuttle", Color.BLUE, [STATIONS[name] for name in LINE_ORDER]),
-            Line("Solved Route", Color.HIGHLIGHT, [STATIONS[name] for name in route]),
-            *(Station(name, STATIONS[name]) for name in LINE_ORDER),
+            Line("Station Data", Color.BLUE, [STATIONS[name] for name in STATION_DATA]),
+            Line("Search Checks", Color.HIGHLIGHT, [STATIONS[name] for name in inspected_stations]),
+            *(Station(name, STATIONS[name]) for name in STATION_DATA),
         ]),
-        Train("Route", line="Solved Route", solver=solver, asset="metro_nose", speed=1),
+        Train("Search", line="Search Checks", solver=solver, asset="metro_nose", speed=1),
     ])
 
 
 def main() -> None:
-    route = solve_puzzle(LINE_ORDER, START, GOAL)
-    print("Single-line route:", " -> ".join(route))
+    inspected_stations = solve_puzzle(STATION_DATA, TARGET)
+    print("Linear search checks:", " -> ".join(inspected_stations))
     build_system().fit().run()
 
 
 if __name__ == "__main__":
+    print("Hello world")
     main()

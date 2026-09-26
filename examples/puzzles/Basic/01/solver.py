@@ -1,48 +1,51 @@
 from __future__ import annotations
 
 
-def _solve_puzzle(line_order: list[str], start: str = "Depot", goal: str = "Museum") -> list[str]:
-    if start not in line_order or goal not in line_order:
-        raise ValueError("start and goal must be stations on the line")
-
-    start_index = line_order.index(start)
-    goal_index = line_order.index(goal)
-
-    if start_index <= goal_index:
-        return line_order[start_index : goal_index + 1]
-
-    route = line_order[goal_index : start_index + 1]
-    route.reverse()
-    return route
-
-
-def solve_puzzle(line_order: list[str], start: str = "Depot", goal: str = "Museum") -> list[str]:
-    """Find the route on a single metro line.
+def solve_puzzle(station_data: list[str], target: str = "Museum") -> list[str]:
+    """Return the stations inspected by a linear search.
 
     Input
     -----
-    `line_order`
-        A list of station names in travel order.
+    `station_data`
+        A list of station names. The values are not sorted.
         Example:
-        ["Depot", "School", "Library", "Museum", "Harbour"]
+        ["Harbour", "School", "Library", "Depot", "Museum"]
 
-    `start`
-        The station where the train starts.
-        Example: "Depot"
-
-    `goal`
-        The station where the train must finish.
+    `target`
+        The station to find.
         Example: "Museum"
 
     Goal
     ----
-    Return every station visited from `start` to `goal`.
-    There is only one line, so you only need to take the correct slice.
+    Use a linear search: inspect the data from the first item onwards and stop
+    as soon as you find `target`.
 
     Output
     ------
-    A list of station names, including both ends.
+    A list of every station inspected, including the matching station.
     Example:
-    ["Depot", "School", "Library", "Museum"]
+    ["Harbour", "School", "Library", "Depot", "Museum"]
+
+
+    found = False
+    i = 0
+    looped_list = []
+    while i < len(station_data) and found == False:
+        item = station_data[i]
+        looped_list.append(item)
+
+        if item == target:
+            found = True
+            return looped_list
+
+        i += 1
+
+    raise ValueError("Not found")
     """
-    return _solve_puzzle(line_order, start, goal)
+
+    inspected_stations: list[str] = []
+    for station_name in station_data:
+        inspected_stations.append(station_name)
+        if station_name == target:
+            return inspected_stations
+    raise ValueError("target is not in the station data")

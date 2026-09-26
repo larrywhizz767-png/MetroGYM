@@ -10,7 +10,7 @@ def build_system(*, tick_ms: int = 400, render_scale: int | float = 2) -> MetroS
         Network([
             Line("Loop", Color(80, 200, 255), [(120, 120), (560, 120), (560, 380), (120, 380), (120, 120)]),
             Station("Origin", (120, 120)),
-            Station("North", (560, 120)),
+            Station("Grand Avenue and Riverside Interchange", (560, 120), label="Grand Ave"),
             Station("Far Side", (560, 380)),
             Station("West", (120, 380)),
         ]),

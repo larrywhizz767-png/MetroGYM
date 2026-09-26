@@ -17,27 +17,21 @@ SOLVER_SPEC.loader.exec_module(solver_module)
 solve_puzzle = solver_module.solve_puzzle
 
 STATIONS = {
-    "West": (80, 220),
-    "Central": (280, 220),
-    "East": (480, 220),
-    "North": (280, 80),
-    "South": (280, 360),
-    "Airport": (600, 80),
+    "Airport": (80, 220),
+    "Central": (160, 220),
+    "Depot": (240, 220),
+    "Garden": (320, 220),
+    "Museum": (400, 220),
+    "School": (480, 220),
+    "Stadium": (560, 220),
+    "West": (640, 220),
 }
-GRAPH = {
-    "West": ["Central"],
-    "Central": ["West", "East", "North", "South", "Airport"],
-    "East": ["Central"],
-    "North": ["Central"],
-    "South": ["Central"],
-    "Airport": ["Central"],
-}
-START = "West"
-GOAL = "Airport"
+ORDERED_STATION_DATA = ["Airport", "Central", "Depot", "Garden", "Museum", "School", "Stadium", "West"]
+TARGET = "Museum"
 
 
-class RouteReplaySolver(TrainAgent):
-    """Animate the route returned by the BFS solver."""
+class SearchReplaySolver(TrainAgent):
+    """Animate the stations inspected by the binary search."""
 
     def __init__(self, route: list[str], *, dwell_ticks: int = 2):
         self.route = route
@@ -59,38 +53,31 @@ class RouteReplaySolver(TrainAgent):
             stop_name = self.route[self._next_stop_index]
             self._remaining_hold = self.dwell_ticks
             self._next_stop_index += 1
-            return train.hold(reason=f"BFS reached {stop_name}")
-        return train.proceed_at(1.0, reason="following BFS route")
+            return train.hold(reason=f"binary search checked {stop_name}")
+        return train.proceed_at(1.0, reason="following binary-search checks")
 
 
 def build_system(*, tick_ms: int = 350, render_scale: int | float = 2) -> MetroSystem:
-    """Build the world for the fewest-stops BFS puzzle.
+    """Build the teaching world for the binary-search puzzle.
 
-    The puzzle data lives in `world.py` and is passed into `solver.py`.
-    Students only need to work on the route logic.
+    The sorted data lives in `world.py` and is passed into `solver.py`.
+    Students only need to work on the search logic.
     """
-    route = solve_puzzle(GRAPH, START, GOAL)
-    solver = RouteReplaySolver(route)
-    return MetroSystem(name="Puzzle Basic 2: Fewest Stops BFS", tick_ms=tick_ms, render_scale=render_scale).pipeline([
+    inspected_stations = solve_puzzle(ORDERED_STATION_DATA, TARGET)
+    solver = SearchReplaySolver(inspected_stations)
+    return MetroSystem(name="Puzzle Basic 2: Binary Search", tick_ms=tick_ms, render_scale=render_scale).pipeline([
         Network([
-            Line("Red", Color.RED, [STATIONS["West"], STATIONS["Central"], STATIONS["East"]]),
-            Line("Green", Color.GREEN, [STATIONS["North"], STATIONS["Central"], STATIONS["South"]]),
-            Line("Blue", Color.BLUE, [STATIONS["Central"], STATIONS["Airport"]]),
-            Line("BFS Route", Color.HIGHLIGHT, [STATIONS[name] for name in route]),
-            Station("West", STATIONS["West"]),
-            Station("Central", STATIONS["Central"], radius=10),
-            Station("East", STATIONS["East"]),
-            Station("North", STATIONS["North"]),
-            Station("South", STATIONS["South"]),
-            Station("Airport", STATIONS["Airport"]),
+            Line("Ordered Station Data", Color.BLUE, [STATIONS[name] for name in ORDERED_STATION_DATA]),
+            Line("Search Checks", Color.HIGHLIGHT, [STATIONS[name] for name in inspected_stations]),
+            *(Station(name, STATIONS[name]) for name in ORDERED_STATION_DATA),
         ]),
-        Train("BFS", line="BFS Route", solver=solver, asset="metro_nose", speed=1),
+        Train("Search", line="Search Checks", solver=solver, asset="metro_nose", speed=1),
     ])
 
 
 def main() -> None:
-    route = solve_puzzle(GRAPH, START, GOAL)
-    print("Fewest-stops route:", " -> ".join(route), f"({len(route) - 1} stops)")
+    inspected_stations = solve_puzzle(ORDERED_STATION_DATA, TARGET)
+    print("Binary search checks:", " -> ".join(inspected_stations))
     build_system().fit().run()
 
 

@@ -34,13 +34,12 @@ GRAPH = {
     "Riverside": ["Junction", "Museum", "Tech Park"],
     "Tech Park": ["Riverside", "Harbour"],
 }
-BLOCKED_TRACKS = [["Museum", "Harbour"]]
 START = "Stadium"
-GOAL = "Harbour"
+TARGET = "Harbour"
 
 
 class RouteReplaySolver(TrainAgent):
-    """Animate the diversion route returned by the BFS solver."""
+    """Animate the shortest path returned by the BFS solver."""
 
     def __init__(self, route: list[str], *, dwell_ticks: int = 2):
         self.route = route
@@ -63,18 +62,18 @@ class RouteReplaySolver(TrainAgent):
             self._remaining_hold = self.dwell_ticks
             self._next_stop_index += 1
             return train.hold(reason=f"BFS reached {stop_name}")
-        return train.proceed_at(1.0, reason="following blocked-track diversion")
+        return train.proceed_at(1.0, reason="following shortest path found by BFS")
 
 
 def build_system(*, tick_ms: int = 320, render_scale: int | float = 2) -> MetroSystem:
-    """Build the world for the blocked-track BFS challenge.
+    """Build the world for the breadth-first search challenge.
 
     The puzzle inputs live in `world.py` and are passed into `solver.py`.
     Students only edit the route logic.
     """
-    route = solve_puzzle(GRAPH, BLOCKED_TRACKS, START, GOAL)
+    route = solve_puzzle(GRAPH, START, TARGET)
     solver = RouteReplaySolver(route)
-    return MetroSystem(name="Puzzle Medium 2: BFS With Blocked Track", tick_ms=tick_ms, render_scale=render_scale).pipeline([
+    return MetroSystem(name="Puzzle Medium 2: Breadth-First Search", tick_ms=tick_ms, render_scale=render_scale).pipeline([
         Network([
             Line("Red", Color.RED, [STATIONS["Stadium"], STATIONS["Junction"], STATIONS["Museum"], STATIONS["Harbour"]]),
             Line("Green", Color.GREEN, [STATIONS["Hilltop"], STATIONS["Junction"], STATIONS["Riverside"], STATIONS["Tech Park"]]),
@@ -94,10 +93,9 @@ def build_system(*, tick_ms: int = 320, render_scale: int | float = 2) -> MetroS
 
 
 def main() -> None:
-    route = solve_puzzle(GRAPH, BLOCKED_TRACKS, START, GOAL)
-    blocked_start, blocked_end = BLOCKED_TRACKS[0]
-    print("Blocked track:", blocked_start, "-", blocked_end)
-    print("Diversion route:", " -> ".join(route))
+    route = solve_puzzle(GRAPH, START, TARGET)
+    print("Target station:", TARGET)
+    print("Shortest BFS path:", " -> ".join(route))
     build_system().fit().run()
 
 

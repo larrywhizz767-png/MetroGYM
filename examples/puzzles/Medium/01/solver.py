@@ -1,53 +1,12 @@
 from __future__ import annotations
 
 
-def _solve_puzzle(
-    graph: dict[str, list[str]],
-    closed_stations: list[str],
-    start: str = "Depot",
-    goal: str = "Harbour",
-) -> list[str]:
-    if start in closed_stations or goal in closed_stations:
-        raise ValueError("start and goal must be open stations")
-
-    queue = [start]
-    parents: dict[str, str | None] = {start: None}
-    queue_index = 0
-
-    while queue_index < len(queue):
-        current = queue[queue_index]
-        queue_index += 1
-
-        if current == goal:
-            break
-
-        for neighbor in graph[current]:
-            if neighbor in closed_stations:
-                continue
-            if neighbor in parents:
-                continue
-            parents[neighbor] = current
-            queue.append(neighbor)
-
-    if goal not in parents:
-        raise ValueError("no route found with the closed station removed")
-
-    route: list[str] = []
-    current: str | None = goal
-    while current is not None:
-        route.append(current)
-        current = parents[current]
-    route.reverse()
-    return route
-
-
 def solve_puzzle(
     graph: dict[str, list[str]],
-    closed_stations: list[str],
     start: str = "Depot",
-    goal: str = "Harbour",
+    target: str = "Harbour",
 ) -> list[str]:
-    """Find the best diversion when some stations are closed.
+    """Find a path to the target station using depth-first search.
 
     Input
     -----
@@ -55,33 +14,46 @@ def solve_puzzle(
         A dictionary of direct station links.
         Example:
         {
-            "Depot": ["Market"],
-            "Market": ["Depot", "Museum", "College"],
-            "Garden": ["Museum", "Harbour", "Arena", "College"],
+            "Depot": ["Market", "Riverside"],
+            "Market": ["Depot", "Museum"],
+            "Harbour": ["Garden", "Riverside"],
         }
-
-    `closed_stations`
-        A list of stations that cannot be used.
-        Example:
-        ["Museum"]
 
     `start`
         The station where the journey begins.
         Example: "Depot"
 
-    `goal`
-        The destination station.
+    `target`
+        The station you want to find.
         Example: "Harbour"
 
     Goal
     ----
-    Use breadth-first search to find the route with the fewest stops while
-    skipping every station in `closed_stations`.
+    Use depth-first search to explore one route as far as possible before
+    backtracking. Stop as soon as you find `target`.
 
     Output
     ------
-    A list of station names showing the diversion route.
+    A list of station names showing the path from `start` to `target`.
     Example:
-    ["Depot", "Market", "College", "Garden", "Harbour"]
+    ["Depot", "Market", "Museum", "Garden", "Harbour"]
     """
-    return _solve_puzzle(graph, closed_stations, start, goal)
+
+    visited_stations = {start}
+    paths_to_visit = [[start]]
+
+    while paths_to_visit:
+        current_path = paths_to_visit.pop()
+        current_station = current_path[-1]
+        if current_station == target:
+            return current_path
+
+        for neighbouring_station in graph[current_station]:
+            if neighbouring_station in visited_stations:
+                continue
+
+            visited_stations.add(neighbouring_station)
+            new_path = current_path + [neighbouring_station]
+            paths_to_visit.append(new_path)
+
+    return []
