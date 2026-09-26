@@ -12,13 +12,44 @@ from beartype import beartype
 
 from metrogym.core.constants import ASSETS_DIR
 
-TrainAssetName: TypeAlias = Literal["metro_nose", "maintenance", "city_tram", "bullet_metro"]
+TrainAssetName: TypeAlias = Literal[
+    "metro_nose",
+    "maintenance",
+    "city_tram",
+    "bullet_metro",
+    "beijing_line_1",
+    "beijing_line_2",
+    "beijing_line_3",
+    "beijing_line_4",
+    "beijing_line_5",
+]
 
 DEFAULT_TRAIN_ASSET: TrainAssetName = "metro_nose"
-TRAIN_ASSET_NAMES: tuple[TrainAssetName, ...] = ("metro_nose", "maintenance", "city_tram", "bullet_metro")
+TRAIN_ASSET_NAMES: tuple[TrainAssetName, ...] = (
+    "metro_nose",
+    "maintenance",
+    "city_tram",
+    "bullet_metro",
+    "beijing_line_1",
+    "beijing_line_2",
+    "beijing_line_3",
+    "beijing_line_4",
+    "beijing_line_5",
+)
 TRAIN_ASSET_SCALES: tuple[int, ...] = (1, 2, 3, 4)
 TRAIN_ASSETS_DIR = ASSETS_DIR / "trains"
 TRAIN_ASSET_BASE_SIZE = (64, 40)
+TRAIN_ASSET_BASE_SIZES: dict[TrainAssetName, tuple[int, int]] = {
+    "metro_nose": TRAIN_ASSET_BASE_SIZE,
+    "maintenance": TRAIN_ASSET_BASE_SIZE,
+    "city_tram": TRAIN_ASSET_BASE_SIZE,
+    "bullet_metro": TRAIN_ASSET_BASE_SIZE,
+    "beijing_line_1": (64, 36),
+    "beijing_line_2": (64, 36),
+    "beijing_line_3": (64, 36),
+    "beijing_line_4": (64, 36),
+    "beijing_line_5": (64, 36),
+}
 
 
 @beartype
@@ -92,14 +123,16 @@ def train_asset_manifest() -> dict[TrainAssetName, TrainAsset]:
         dict[TrainAssetName, TrainAsset]:
             Asset metadata keyed by asset name.
     """
-    width, height = TRAIN_ASSET_BASE_SIZE
     return {
         name: TrainAsset(
             name=name,
             title=name.replace("_", " ").title(),
-            width=width,
-            height=height,
-            svg_paths={scale: TRAIN_ASSETS_DIR / f"{name}_{width * scale}x{height * scale}.svg" for scale in TRAIN_ASSET_SCALES},
+            width=TRAIN_ASSET_BASE_SIZES[name][0],
+            height=TRAIN_ASSET_BASE_SIZES[name][1],
+            svg_paths={
+                scale: TRAIN_ASSETS_DIR / f"{name}_{TRAIN_ASSET_BASE_SIZES[name][0] * scale}x{TRAIN_ASSET_BASE_SIZES[name][1] * scale}.svg"
+                for scale in TRAIN_ASSET_SCALES
+            },
         )
         for name in TRAIN_ASSET_NAMES
     }
@@ -120,9 +153,9 @@ def load_train_asset_surface(name: TrainAssetName | str = DEFAULT_TRAIN_ASSET, *
             Pygame surface containing the scaled train sprite.
     """
     asset = train_asset(name)
-    source_scale = _train_display_scale_for(scale)
-    target_width = max(1, asset.width * source_scale)
-    target_height = max(1, asset.height * source_scale)
+    source_scale = _asset_scale_for(scale)
+    target_width = max(1, round(asset.width * float(scale)))
+    target_height = max(1, round(asset.height * float(scale)))
     return _load_train_asset_surface(asset.name, source_scale, target_width, target_height)
 
 
@@ -139,11 +172,3 @@ def _load_train_asset_surface(name: TrainAssetName, source_scale: int, width: in
 def _asset_scale_for(scale: int | float) -> int:
     rounded = round(float(scale))
     return max(min(rounded, max(TRAIN_ASSET_SCALES)), min(TRAIN_ASSET_SCALES))
-
-
-@beartype
-def _train_display_scale_for(scale: int | float) -> int:
-    rounded = round(float(scale))
-    if rounded <= min(TRAIN_ASSET_SCALES):
-        return min(TRAIN_ASSET_SCALES)
-    return max(min(rounded - 1, max(TRAIN_ASSET_SCALES)), min(TRAIN_ASSET_SCALES))

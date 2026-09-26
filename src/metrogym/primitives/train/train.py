@@ -33,7 +33,8 @@ class Train(BaseMetroPrimitive):
             checks.
         asset (TrainAssetName | str, default=DEFAULT_TRAIN_ASSET):
             Train sprite asset name. Supported values are ``"metro_nose"``,
-            ``"maintenance"``, ``"city_tram"``, and ``"bullet_metro"``.
+            ``"maintenance"``, ``"city_tram"``, ``"bullet_metro"``, and
+            ``"beijing_line_1"`` through ``"beijing_line_5"``.
         solver (SolverLike | None, default=None):
             Optional train solver or train agent.
         speed (int | float, default=1):
