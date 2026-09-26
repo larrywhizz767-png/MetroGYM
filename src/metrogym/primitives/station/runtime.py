@@ -11,9 +11,11 @@ class RuntimeStation:
     name: str
     position: Position
     radius: int = 7
+    label: str | None = None
 
     @beartype
-    def __init__(self, name: str, position: PositionLike, radius: int = 7):
+    def __init__(self, name: str, position: PositionLike, radius: int = 7, label: str | None = None):
         object.__setattr__(self, "name", name)
         object.__setattr__(self, "position", to_position(position))
         object.__setattr__(self, "radius", radius)
+        object.__setattr__(self, "label", label)

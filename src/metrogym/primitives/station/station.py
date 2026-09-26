@@ -18,11 +18,13 @@ class Station(BaseMetroPrimitive):
 
     Args:
         name (str):
-            Station name shown in the renderer.
+            Station name used to identify the station.
         position (PositionLike):
             Station centre in world coordinates.
         radius (int, default=7):
             Marker radius used for rendering.
+        label (str | None, default=None):
+            Optional short label shown in the renderer.
 
     Attributes:
         name (str):
@@ -31,6 +33,8 @@ class Station(BaseMetroPrimitive):
             Declared station position.
         radius (int):
             Declared marker radius.
+        label (str | None):
+            Optional short display label.
 
     Raises:
         ValueError:
@@ -59,10 +63,11 @@ class Station(BaseMetroPrimitive):
     network_only = True
 
     @beartype
-    def __init__(self, name: str, position: PositionLike, radius: int = 7):
+    def __init__(self, name: str, position: PositionLike, radius: int = 7, label: str | None = None):
         self.name = name
         self.position = position
         self.radius = radius
+        self.label = label
 
     @beartype
     def transform(self, context: object) -> object:
@@ -79,6 +84,6 @@ class Station(BaseMetroPrimitive):
         registry = validation_registry()
         if self.name in context.station_names:
             registry.raise_issue(registry.primitive_issue("Station", "duplicate_name", path=f"Station[name={self.name}]", name=self.name))
-        context.simulator.add_station(self.name, self.position, self.radius)
+        context.simulator.add_station(self.name, self.position, self.radius, self.label)
         context.station_names.add(self.name)
         return context

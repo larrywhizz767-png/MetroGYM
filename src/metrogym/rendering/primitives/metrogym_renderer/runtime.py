@@ -88,7 +88,8 @@ class RuntimeMetroGYMRenderer:
         radius = max(2, round(gfx.scale_value(station.radius, self.scale) * view_scale))
         gfx.filled_circle(surface, center, radius, Color.STATION_BORDER)
         gfx.filled_circle(surface, center, max(1, radius - max(1, round(gfx.scale_value(3, self.scale) * view_scale))), Color.STATION_FILL)
-        label = self.fonts["station"].render(station.name, True, Color.STATION_LABEL.pygame())
+        display_label = station.label if station.label is not None else station.name
+        label = self.fonts["station"].render(display_label, True, Color.STATION_LABEL.pygame())
         surface.blit(label, label.get_rect(center=(center.x, center.y + radius + gfx.scale_value(10, self.scale))))
 
     @beartype
@@ -149,6 +150,12 @@ class RuntimeMetroGYMRenderer:
     def draw_ui_mode(self, surface: object, size: Position, mode_label: str) -> None:
         text = self.fonts["legend"].render(f"Mode {mode_label}", True, Color.STATUS_TEXT.pygame())
         self._draw_top_right_badge(surface, size, text, gfx.scale_value(44, self.scale))
+
+    @beartype
+    def draw_simulation_clock(self, surface: object, size: Position, clock_label: str) -> None:
+        """Draw an optional simulation-time badge above the standard controls."""
+        text = self.fonts["legend"].render(f"Time {clock_label}", True, Color.HIGHLIGHT.pygame())
+        self._draw_top_right_badge(surface, size, text, gfx.scale_value(78, self.scale))
 
     @beartype
     def _draw_top_right_badge(self, surface: object, size: Position, text: object, top: int) -> None:

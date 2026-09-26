@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import threading
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from typing import Protocol
 
 import pygame
@@ -64,6 +64,7 @@ class RuntimeSimulator:
         self._dragging_view = False
         self.ui_mode: UIMode = "minimal"
         self._keyboard = KeyboardController(self)
+        self._clock_label_provider: Callable[[int], str] | None = None
 
     @beartype
     def add_line(self, name: str, color: ColorRGBA, waypoints: Sequence[PositionLike]) -> RuntimeLine:
@@ -143,8 +144,8 @@ class RuntimeSimulator:
         return self.control.protect_segment(line, start, end, light, direction=direction)
 
     @beartype
-    def add_station(self, name: str, position: PositionLike, radius: int = 7) -> RuntimeStation:
-        station = RuntimeStation(name, position, radius)
+    def add_station(self, name: str, position: PositionLike, radius: int = 7, label: str | None = None) -> RuntimeStation:
+        station = RuntimeStation(name, position, radius, label)
         self._panel.add_station(station)
         self._stations.append(station)
         return station
@@ -264,6 +265,11 @@ class RuntimeSimulator:
         self.ui_mode = validate_ui_mode(mode)
 
     @beartype
+    def set_clock_label_provider(self, provider: Callable[[int], str] | None) -> None:
+        """Set an optional function that formats the current simulation tick as time."""
+        self._clock_label_provider = provider
+
+    @beartype
     def show(self, *, block: bool = True) -> None:
         if not block:
             thread = threading.Thread(target=self._run_loop, daemon=True)
@@ -295,6 +301,8 @@ class RuntimeSimulator:
                 self._panel.draw(self._screen, renderer, ui_mode=self.ui_mode)
                 renderer.draw_speed_ratio(self._screen, self._panel.window_size, self.animation_ratio)
                 renderer.draw_ui_mode(self._screen, self._panel.window_size, ui_mode_label(self.ui_mode))
+                if self._clock_label_provider is not None:
+                    renderer.draw_simulation_clock(self._screen, self._panel.window_size, self._clock_label_provider(self.tick_count))
                 renderer.draw_help_prompt(self._screen, self._panel.window_size)
                 if self._show_help:
                     renderer.draw_help_overlay(self._screen, self._panel.window_size)
