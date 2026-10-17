@@ -8,10 +8,10 @@ build:
     install:
       - python -m pip install uv==0.10.10
       # Install the package and documentation tools from the committed lockfile.
-      - uv sync --locked --group docs
+      - python -m uv sync --locked --group docs
     build:
       html:
-        - uv run --no-sync zensical build
+        - python -m uv run --no-sync zensical build
     post_build:
       - mkdir -p "$READTHEDOCS_OUTPUT/html"
       - cp -a site/. "$READTHEDOCS_OUTPUT/html/"
