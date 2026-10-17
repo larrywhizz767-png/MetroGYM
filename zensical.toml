@@ -20,9 +20,7 @@ nav = [
     ]},
     { "Tutorials" = [
         { "Overview" = "tutorials/overview.md" },
-        { "Understanding Pipelines" = "tutorials/understanding-pipelines.md" },
         { "Building worlds" = "tutorials/building-worlds.md" },
-        { "Save & Load Worlds" = "tutorials/saving-and-loading-worlds.md" },
         { "Controlling trains" = "tutorials/controlling-trains.md" },
         { "Managing signals" = "tutorials/managing-signals.md" },
         { "Advanced scenarios" = "tutorials/advanced-scenarios.md" },

@@ -11,14 +11,6 @@ If you are new to the library, start with world construction before moving into 
 
 <div class="grid cards" markdown>
 
-- __Understanding pipelines__
-
-    ---
-
-    Learn why MetroGYM uses a declarative pipeline approach instead of an imperative one.
-
-    [Read the tutorial](understanding-pipelines.md)
-
 - __Building worlds__
 
     ---
@@ -26,14 +18,6 @@ If you are new to the library, start with world construction before moving into 
     Learn how `MetroSystem`, `Network`, `Line`, `Station`, and runtime execution fit together in one world.
 
     [Read the tutorial](building-worlds.md)
-
-- __Saving and loading worlds__
-
-    ---
-
-    Persist a declarative `MetroSystem` pipeline, load it later, and extend it before fitting again.
-
-    [Read the tutorial](saving-and-loading-worlds.md)
 
 - __Controlling trains__
 

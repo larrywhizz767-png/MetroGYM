@@ -108,9 +108,9 @@
 }
 
 .md-typeset .tabbed-labels > label .tab-badge--accent {
-    background: var(--sklong-accent-transparent);
+    background: var(--metrogym-accent-transparent);
     border-color: rgba(253, 112, 107, 0.18);
-    color: var(--sklong-accent);
+    color: var(--metrogym-accent);
 }
 
 .md-typeset .expandable-media {
