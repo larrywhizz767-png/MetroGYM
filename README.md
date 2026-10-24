@@ -38,8 +38,7 @@ MetroGYM allows you to build complex metro systems from explicit primitives, the
 
 ## <a id="installation"></a><img src="docs/assets/icons/lucide/terminal.svg" width="32" alt="" /> Installation
 
-> [!WARNING]
-> **Pip is incoming!** MetroGYM is currently in early development and not yet available on PyPi.
+
 
 ### Prerequisites
 
@@ -48,25 +47,14 @@ Before you begin, ensure you have the following installed on your system:
 - **Git**: For cloning the repository.
 - **uv**: The recommended Python package and project manager. Install it via [astral.sh/uv](https://astral.sh/uv).
 
-### Install From Source
+### Installation
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/larrywhizz767-png/MetroGYM.git
-   cd MetroGYM
-   ```
+To install MetroGYM, please run the following:
 
-2. **Sync the environment:**
-   `uv` will automatically create a virtual environment, install the correct Python version, and fetch all dependencies (including `pygame` and `beartype`).
-   ```bash
-   uv sync
-   ```
-
-3. **Verify the installation:**
-   Run a quick check to ensure everything is set up correctly:
-   ```bash
-   uv run python -m compileall src
-   ```
+```shell
+pip install metrogym
+# You can also use uv add metrogym
+```
 
 ## <a id="getting-started"></a><img src="docs/assets/icons/lucide/square-code.svg" width="32" alt="" /> Getting Started
 
@@ -98,15 +86,6 @@ system = MetroSystem(name="Quick Start", render_scale=2).pipeline([
 ])
 
 system.fit().run()
-```
-
-## <a id="local-documentation"></a><img src="docs/assets/icons/lucide/file-stack.svg" width="32" alt="" /> Local Documentation
-
-To run the documentation locally, ensure you have the `docs` dependencies installed and run:
-
-```bash
-uv sync --group docs
-uv run zensical serve
 ```
 
 ## <a id="license"></a><img src="docs/assets/icons/lucide/fingerprint-pattern.svg" width="32" alt="" /> License
